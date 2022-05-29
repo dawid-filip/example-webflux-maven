@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono;
 public interface PetService {
     Mono<PetDto> getById(Long id);
     Flux<PetDto> getAll();
-
+    Mono<PetDto> create(PetDto petDto);
+    Mono<PetDto> deleteById(Long id);
 }
