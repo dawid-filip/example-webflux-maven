@@ -48,4 +48,12 @@ public class PetRestController {
                 .body(petService.deleteById(id));
     }
 
+    @PatchMapping
+    public ResponseEntity<Mono<PetDto>> alter(@RequestBody PetDto petDto) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .allow(HttpMethod.PATCH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(petService.alter(petDto));
+    }
+
 }

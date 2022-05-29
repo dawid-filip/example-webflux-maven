@@ -36,8 +36,8 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> create(PetDto petDto) {
         return petCrudRepository.save(new Pet(petDto))
                 .map(pet -> new PetDto(pet))
-                .doOnSuccess(pet -> log.info("Created " + pet + "."))
-                .doOnError(pet -> log.info("Failed to create " + pet + "."));
+                .doOnSuccess(p -> log.info("Created " + p + "."))
+                .doOnError(p -> log.info("Failed to create " + p + "."));
     }
 
     @Override
@@ -47,8 +47,20 @@ public class PetServiceImpl implements PetService {
                 .flatMap(petDto ->
                         petCrudRepository.deleteById(id)
                                 .flatMap(p -> Mono.just(petDto))
-                                .doOnSuccess(pet -> log.info("Deleted " + petDto + "."))
-                                .doOnError(pet -> log.info("Failed to delete " + petDto + "."))
+                                .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
+                                .doOnError(p -> log.info("Failed to delete " + petDto + "."))
+                );
+    }
+
+    @Override
+    @Transactional
+    public Mono<PetDto> alter(PetDto petDto) {
+        return getById(petDto.getId())
+                .flatMap(currentPetDto ->
+                        petCrudRepository.save(new Pet(petDto))
+                                .flatMap(pet -> Mono.just(new PetDto(pet)))
+                                .doOnSuccess(p -> log.info("Altered " + petDto + "."))
+                                .doOnError(p -> log.info("Failed to alter " + petDto + "."))
                 );
     }
 

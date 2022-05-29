@@ -9,4 +9,5 @@ public interface PetService {
     Flux<PetDto> getAll();
     Mono<PetDto> create(PetDto petDto);
     Mono<PetDto> deleteById(Long id);
+    Mono<PetDto> alter(PetDto petDto);
 }
