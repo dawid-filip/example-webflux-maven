@@ -22,6 +22,7 @@ public class PetRestController {
     public ResponseEntity<Flux<PetDto>> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
                 .body(petService.getAll());
     }
 
@@ -29,6 +30,7 @@ public class PetRestController {
     public ResponseEntity<Mono<PetDto>> getById(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
                 .body(petService.getById(id));
     }
 

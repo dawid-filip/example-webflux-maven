@@ -44,12 +44,13 @@ public class PetServiceImpl implements PetService {
     @Transactional
     public Mono<PetDto> deleteById(Long id) {
         return getById(id)
-                .flatMap(petDto ->
-                        petCrudRepository.deleteById(id)
-                                .flatMap(p -> Mono.just(petDto))
-                                .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
-                                .doOnError(p -> log.info("Failed to delete " + petDto + "."))
-                );
+                .map(petDto -> {
+                    petCrudRepository.deleteById(id)
+                            .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
+                            .doOnError(p -> log.info("Failed to delete " + petDto + "."))
+                            .subscribe();
+                    return petDto;
+                });
     }
 
     @Override
