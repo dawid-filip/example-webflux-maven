@@ -22,7 +22,7 @@ public class OwnerUtility {
         return new OwnerDto(ownerRequest);
     }
 
-    public static OwnerRequest ownerRequestToOwner(Owner owner) {
+    public static OwnerRequest ownerToOwnerRequest(Owner owner) {
         return new OwnerRequest(owner);
     }
 

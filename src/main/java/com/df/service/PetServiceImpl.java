@@ -32,7 +32,7 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public Mono<PetDto> create(PetDto petDto) {
         return petRepository.save(new Pet(petDto))
                 .map(pet -> new PetDto(pet))

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -111,7 +112,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(List.class)
+                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(3, entityExchangeResult.getResponseBody().size());
                 });
@@ -129,7 +130,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(List.class)
+                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
                 .consumeWith(entityExchangeResult -> {
                     assertTrue(entityExchangeResult.getResponseBody().isEmpty());
                 });
@@ -179,7 +180,6 @@ public class PetRestControllerTest {
         verify(petRepository, times(1)).findById(petId);
         verify(petRepository, times(0)).deleteById(petId);
     }
-
 
     @Test
     void testAlter() {
