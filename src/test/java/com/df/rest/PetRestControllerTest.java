@@ -2,7 +2,7 @@ package com.df.rest;
 
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
-import com.df.repository.PetCrudRepository;
+import com.df.repository.PetRepository;
 import com.df.service.PetServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,14 +36,14 @@ public class PetRestControllerTest {
     private WebTestClient webClient;
 
     @MockBean
-    private PetCrudRepository petCrudRepository;
+    private PetRepository petRepository;
 
     @Test
     void testCreate() {
         Pet petBefore = new Pet(null, "petName1", (short)3, (short)3, (short)16);
         Pet petAfter = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
 
-        Mockito.when(petCrudRepository.save(petBefore)).thenReturn(Mono.just(petAfter));
+        Mockito.when(petRepository.save(petBefore)).thenReturn(Mono.just(petAfter));
 
         webClient.post()
                 .uri(BASE_URL)
@@ -57,14 +57,14 @@ public class PetRestControllerTest {
                     assertTrue(entityExchangeResult.getResponseBody().getId()==petAfter.getId());
                 });
 
-        verify(petCrudRepository, times(1)).save(petBefore);
+        verify(petRepository, times(1)).save(petBefore);
     }
 
     @Test
     void testGetById() {
         Pet pet = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
 
-        Mockito.when(petCrudRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
+        Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
 
         webClient.get()
                 .uri(BASE_URL + "/{id}",pet.getId())
@@ -77,13 +77,13 @@ public class PetRestControllerTest {
                     assertEquals(pet.getName(), entityExchangeResult.getResponseBody().getName());
                 });
 
-        verify(petCrudRepository, times(1)).findById(pet.getId());
+        verify(petRepository, times(1)).findById(pet.getId());
     }
 
     @Test
     void testGetByIdWhichDoesNotExist() {
         Long petId = 1L;
-        Mockito.when(petCrudRepository.findById(petId)).thenReturn(Mono.empty());
+        Mockito.when(petRepository.findById(petId)).thenReturn(Mono.empty());
 
         webClient.get()
                 .uri(BASE_URL + "/{id}",petId)
@@ -95,16 +95,16 @@ public class PetRestControllerTest {
                     assertNull(entityExchangeResult.getResponseBody());
                 });
 
-        verify(petCrudRepository, times(1)).findById(petId);
+        verify(petRepository, times(1)).findById(petId);
     }
 
     @Test
     void testGetAll() {
         Pet pet1 = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
         Pet pet2 = new Pet(2L, "petName2", (short)4, (short)4, (short)17);
-        Pet pet3 = new Pet(3L, "petName2", (short)6, (short)6, (short)18);
+        Pet pet3 = new Pet(3L, "petName3", (short)6, (short)6, (short)18);
 
-        Mockito.when(petCrudRepository.findAll()).thenReturn(Flux.just(pet1, pet2, pet3));
+        Mockito.when(petRepository.findAll()).thenReturn(Flux.just(pet1, pet2, pet3));
 
         webClient.get()
                 .uri(BASE_URL)
@@ -116,13 +116,13 @@ public class PetRestControllerTest {
                     assertEquals(3, entityExchangeResult.getResponseBody().size());
                 });
 
-        verify(petCrudRepository, times(1)).findAll();
+        verify(petRepository, times(1)).findAll();
     }
 
     @Test
     void testGetAllWhenEmpty() {
 
-        Mockito.when(petCrudRepository.findAll()).thenReturn(Flux.empty());
+        Mockito.when(petRepository.findAll()).thenReturn(Flux.empty());
 
         webClient.get()
                 .uri(BASE_URL)
@@ -134,15 +134,15 @@ public class PetRestControllerTest {
                     assertTrue(entityExchangeResult.getResponseBody().isEmpty());
                 });
 
-        verify(petCrudRepository, times(1)).findAll();
+        verify(petRepository, times(1)).findAll();
     }
 
     @Test
     void testDelete() {
         Pet pet = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
 
-        Mockito.when(petCrudRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
-        Mockito.when(petCrudRepository.deleteById(pet.getId())).thenReturn(Mono.empty().then());
+        Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
+        Mockito.when(petRepository.deleteById(pet.getId())).thenReturn(Mono.empty().then());
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", pet.getId())
@@ -155,15 +155,15 @@ public class PetRestControllerTest {
                     assertEquals(pet.getId(), entityExchangeResult.getResponseBody().getId());
                 });
 
-        verify(petCrudRepository, times(1)).findById(pet.getId());
-        verify(petCrudRepository, times(1)).deleteById(pet.getId());
+        verify(petRepository, times(1)).findById(pet.getId());
+        verify(petRepository, times(1)).deleteById(pet.getId());
     }
 
     @Test
     void testDeleteWhenDoesNotExist() {
         Long petId = 1L;
-        Mockito.when(petCrudRepository.findById(petId)).thenReturn(Mono.empty());
-        Mockito.when(petCrudRepository.deleteById(petId)).thenReturn(Mono.empty().then());
+        Mockito.when(petRepository.findById(petId)).thenReturn(Mono.empty());
+        Mockito.when(petRepository.deleteById(petId)).thenReturn(Mono.empty().then());
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", petId)
@@ -176,8 +176,8 @@ public class PetRestControllerTest {
                     assertNull(entityExchangeResult.getResponseBody());
                 });
 
-        verify(petCrudRepository, times(1)).findById(petId);
-        verify(petCrudRepository, times(0)).deleteById(petId);
+        verify(petRepository, times(1)).findById(petId);
+        verify(petRepository, times(0)).deleteById(petId);
     }
 
 
@@ -186,8 +186,8 @@ public class PetRestControllerTest {
         Pet petBefore = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
         Pet petNew = new Pet(1L, "petName2", (short)4, (short)4, (short)17);
 
-        Mockito.when(petCrudRepository.findById(petNew.getId())).thenReturn(Mono.just(petBefore));
-        Mockito.when(petCrudRepository.save(petNew)).thenReturn(Mono.just(petNew));
+        Mockito.when(petRepository.findById(petNew.getId())).thenReturn(Mono.just(petBefore));
+        Mockito.when(petRepository.save(petNew)).thenReturn(Mono.just(petNew));
 
         webClient.patch()
                 .uri(BASE_URL)
@@ -203,8 +203,8 @@ public class PetRestControllerTest {
                     assertEquals(petNew.getName(), entityExchangeResult.getResponseBody().getName());
                 });
 
-        verify(petCrudRepository, times(1)).findById(petNew.getId());
-        verify(petCrudRepository, times(1)).save(petNew);
+        verify(petRepository, times(1)).findById(petNew.getId());
+        verify(petRepository, times(1)).save(petNew);
     }
 
 }

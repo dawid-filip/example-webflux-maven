@@ -2,8 +2,8 @@ package com.df.service;
 
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
-import com.df.repository.PetCrudRepository;
-import lombok.Data;
+import com.df.repository.PetRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,30 +11,30 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-@Data
+@AllArgsConstructor
 @Log4j2
 public class PetServiceImpl implements PetService {
 
-    private final PetCrudRepository petCrudRepository;
+    private final PetRepository petRepository;
 
     @Override
     public Mono<PetDto> getById(Long id) {
-        return petCrudRepository.findById(id)
+        return petRepository.findById(id)
                 .map(pet -> new PetDto(pet))
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Flux<PetDto> getAll() {
-        return petCrudRepository.findAll()
+        return petRepository.findAll()
                 .map(pet -> new PetDto(pet))
                 .switchIfEmpty(Flux.empty());
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public Mono<PetDto> create(PetDto petDto) {
-        return petCrudRepository.save(new Pet(petDto))
+        return petRepository.save(new Pet(petDto))
                 .map(pet -> new PetDto(pet))
                 .doOnSuccess(p -> log.info("Created " + p + "."))
                 .doOnError(p -> log.info("Failed to create " + p + "."));
@@ -45,7 +45,7 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> deleteById(Long id) {
         return getById(id)
                 .flatMap(petDto ->
-                    petCrudRepository.deleteById(id)
+                        petRepository.deleteById(id)
                             .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
                             .doOnError(p -> log.info("Failed to delete " + petDto + "."))
                             .then(Mono.just(petDto))
@@ -57,7 +57,7 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> alter(PetDto petDto) {
         return getById(petDto.getId())
                 .flatMap(currentPetDto ->
-                        petCrudRepository.save(new Pet(petDto))
+                        petRepository.save(new Pet(petDto))
                                 .flatMap(pet -> Mono.just(new PetDto(pet)))
                                 .doOnSuccess(p -> log.info("Altered " + petDto + "."))
                                 .doOnError(p -> log.info("Failed to alter " + petDto + "."))
