@@ -3,9 +3,11 @@ package com.df.service;
 import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
 import com.df.entity.Owner;
+import com.df.util.OwnerUtility;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -56,6 +58,23 @@ public class InnkeeperServiceImpl implements InnkeeperService {
         return petDtos.stream()
                 .filter(petDto -> petIds.contains(petDto.getId()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Mono<OwnerDto> create(OwnerDto ownerDto) {
+        return petService.createAll(ownerDto.getPets())
+                .collectList()
+                .flatMap(petDtos -> {
+                    ownerDto.setPets(petDtos);
+                    return ownerService
+                            .create(OwnerUtility.ownerToOwnerRequest(ownerDto))
+                            .map(owner -> {
+                                ownerDto.setId(owner.getId());
+                                return ownerDto;
+                            });
+
+                });
     }
 
 }

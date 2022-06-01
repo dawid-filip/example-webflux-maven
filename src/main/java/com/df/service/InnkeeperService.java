@@ -7,4 +7,5 @@ import reactor.core.publisher.Mono;
 public interface InnkeeperService {
     Flux<OwnerDto> getAll();
     Mono<OwnerDto> getById(Long id);
+    Mono<OwnerDto> create(OwnerDto ownerDto);
 }
