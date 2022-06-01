@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Log4j2
@@ -20,6 +22,13 @@ public class PetServiceImpl implements PetService {
     @Override
     public Mono<PetDto> getById(Long id) {
         return petRepository.findById(id)
+                .map(pet -> new PetDto(pet))
+                .switchIfEmpty(Mono.empty());
+    }
+
+    @Override
+    public Flux<PetDto> getByIds(List<Long> ids) {
+        return petRepository.findAllById(ids)
                 .map(pet -> new PetDto(pet))
                 .switchIfEmpty(Mono.empty());
     }

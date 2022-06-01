@@ -1,7 +1,5 @@
 package com.df.rest;
 
-import com.df.dto.OwnerDto;
-import com.df.dto.PetDto;
 import com.df.entity.Owner;
 import com.df.repository.OwnerRepository;
 import com.df.request.OwnerRequest;
@@ -31,7 +29,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = OwnerRestController.class)
-@Import({OwnerServiceImpl.class, OwnerRequest.class, Owner.class, OwnerDto.class})
+@Import({OwnerServiceImpl.class})
 public class OwnerRestControllerTest {
 
     private static final String BASE_URL = "/api/v1/owner";
@@ -202,7 +200,7 @@ public class OwnerRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.PATCH.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(ownerNew), PetDto.class)
+                .body(Mono.just(ownerNew), Owner.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(OwnerRequest.class)

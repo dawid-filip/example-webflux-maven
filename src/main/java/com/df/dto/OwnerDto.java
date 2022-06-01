@@ -1,7 +1,6 @@
 package com.df.dto;
 
 import com.df.entity.Owner;
-import com.df.entity.Pet;
 import com.df.request.OwnerRequest;
 import lombok.*;
 import org.springframework.beans.BeanUtils;
@@ -19,11 +18,14 @@ public class OwnerDto {
     private String firstName;
     private String lastName;
     private Short age;
-
-    private List<Pet> pets;
+    private List<PetDto> pets;
 
     public OwnerDto(Owner owner) {
         BeanUtils.copyProperties(owner, this);
+    }
+    public OwnerDto(Owner owner, List<PetDto> petDtos) {
+        BeanUtils.copyProperties(owner, this);
+        this.setPets(petDtos);
     }
 
     public OwnerDto(OwnerRequest ownerRequest) {

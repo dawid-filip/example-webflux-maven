@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/pet")
 @AllArgsConstructor
@@ -32,6 +34,14 @@ public class PetRestController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .allow(HttpMethod.GET)
                 .body(petService.getById(id));
+    }
+
+    @GetMapping("/ids")
+    public ResponseEntity<Flux<PetDto>> getByIds(@RequestParam("id") List<Long> id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
+                .body(petService.getByIds(id));
     }
 
     @PostMapping

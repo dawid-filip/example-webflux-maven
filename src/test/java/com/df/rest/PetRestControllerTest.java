@@ -17,14 +17,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = PetRestController.class)
@@ -97,6 +98,82 @@ public class PetRestControllerTest {
                 });
 
         verify(petRepository, times(1)).findById(petId);
+    }
+
+    @Test
+    void testGetByIds() {
+        Pet pet1 = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
+        Pet pet2 = new Pet(2L, "petName2", (short)4, (short)4, (short)17);
+
+        Mockito.when(petRepository.findAllById(List.of(pet1.getId(), pet2.getId()))).thenReturn(Flux.just(pet1, pet2));
+
+        webClient.get()
+                .uri(uriBuilder -> uriBuilder.path(BASE_URL + "/ids")
+                        .queryParam("id", 1L)
+                        .queryParam("id", 2L)
+                        .build())
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(2, entityExchangeResult.getResponseBody().size());
+                });
+
+        verify(petRepository, times(1)).findAllById(List.of(pet1.getId(), pet2.getId()));
+    }
+
+    @Test
+    void testGetByIdsWhichDoesNotExist() {
+        Mockito.when(petRepository.findAllById(List.of(1L))).thenReturn(Flux.empty());
+
+        webClient.get()
+                .uri(uriBuilder -> uriBuilder.path(BASE_URL + "/ids")
+                        .queryParam("id", 1L)
+                        .build())
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(0, entityExchangeResult.getResponseBody().size());
+                });
+
+        verify(petRepository, times(1)).findAllById(List.of(1L));
+    }
+
+    @Test
+    void testGetByIdsWhen1ExistAnd1No() {
+        Pet pet1 = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
+        Mockito.when(petRepository.findAllById(List.of(pet1.getId(), 2L))).thenReturn(Flux.just(pet1));
+
+        webClient.get()
+                .uri(uriBuilder -> uriBuilder.path(BASE_URL + "/ids")
+                        .queryParam("id", 1L)
+                        .queryParam("id", 2L)
+                        .build())
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(1, entityExchangeResult.getResponseBody().size());
+                });
+
+        verify(petRepository, times(1)).findAllById(List.of(pet1.getId(), 2L));
+    }
+
+    @Test
+    void testGetByIdsWhereNoIdsThenBadRequest() {
+        Mockito.when(petRepository.findAllById(Collections.emptyList())).thenReturn(Flux.empty());
+
+        webClient.get()
+                .uri(uriBuilder -> uriBuilder.path(BASE_URL + "/ids").build())
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(petRepository, never()).findAllById(Collections.emptyList());
     }
 
     @Test
