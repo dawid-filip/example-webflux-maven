@@ -40,7 +40,6 @@ public class InnkeeperServiceImpl implements InnkeeperService {
     @Override
     public Mono<OwnerDto> getById(Long id) {
         return ownerService.getById(id)
-                .switchIfEmpty(Mono.empty())
                 .flatMap(owner ->
                         petService.getByIds(owner.getPetIds())
                                 .collectList()
@@ -75,6 +74,23 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                             });
 
                 });
+    }
+
+    @Override
+    @Transactional
+    public Mono<OwnerDto> deleteById(Long id) {
+        return getById(id)
+                .flatMap(ownerDto ->
+                        ownerService.deleteById(id)
+                                .flatMap(owner ->
+                                        petService.deleteAllById(owner.getPetIds())
+                                                .collectList()
+                                                .map(petDtos -> {
+                                                    ownerDto.setPets(petDtos); // set deleted pets
+                                                    return ownerDto;
+                                                })
+                                )
+                );
     }
 
 }

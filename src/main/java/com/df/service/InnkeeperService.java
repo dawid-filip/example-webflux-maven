@@ -8,4 +8,5 @@ public interface InnkeeperService {
     Flux<OwnerDto> getAll();
     Mono<OwnerDto> getById(Long id);
     Mono<OwnerDto> create(OwnerDto ownerDto);
+    Mono<OwnerDto> deleteById(Long id);
 }

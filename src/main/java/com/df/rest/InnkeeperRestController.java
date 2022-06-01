@@ -1,8 +1,6 @@
 package com.df.rest;
 
 import com.df.dto.OwnerDto;
-import com.df.entity.Owner;
-import com.df.request.OwnerRequest;
 import com.df.service.InnkeeperService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
@@ -42,6 +40,14 @@ public class InnkeeperRestController {
                 .allow(HttpMethod.POST)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(innkeeperService.create(ownerDto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Mono<OwnerDto>> deleteById(@PathVariable("id") Long id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .allow(HttpMethod.DELETE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(innkeeperService.deleteById(id));
     }
 
 }

@@ -65,10 +65,27 @@ public class PetServiceImpl implements PetService {
         return getById(id)
                 .flatMap(petDto ->
                         petRepository.deleteById(id)
-                            .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
-                            .doOnError(p -> log.info("Failed to delete " + petDto + "."))
-                            .then(Mono.just(petDto))
+                                .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
+                                .doOnError(p -> log.info("Failed to delete " + petDto + "."))
+                                .then(Mono.just(petDto))
                 );
+    }
+
+    @Override
+    @Transactional
+    public Flux<PetDto> deleteAllById(List<Long> ids) {
+        return getByIds(ids)
+                .collectList()
+                .flatMap(petDtos ->
+                        petRepository.deleteAllById(ids)
+                                .doOnSuccess(p ->
+                                    petDtos.forEach(petDto ->
+                                            log.info("Deleted " + petDto + ".")))
+                                .doOnError(p -> log.info("Failed to delete " + petDtos.size() + ", ids=" + ids + "."))
+                                .then(Mono.just(petDtos))
+                )
+                .flatMapMany(Flux::fromIterable)
+                .map(p -> p);
     }
 
     @Override
