@@ -11,6 +11,7 @@ public interface PetService {
     Mono<PetDto> getById(Long id);
     Flux<PetDto> getByIds(List<Long> ids);
     Mono<PetDto> create(PetDto petDto);
+    Flux<PetDto> createAll(List<PetDto> petDtos);
     Mono<PetDto> deleteById(Long id);
     Mono<PetDto> alter(PetDto petDto);
 }

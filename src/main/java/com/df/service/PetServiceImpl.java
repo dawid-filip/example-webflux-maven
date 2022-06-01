@@ -3,6 +3,7 @@ package com.df.service;
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
 import com.df.repository.PetRepository;
+import com.df.util.PetUtility;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,15 @@ public class PetServiceImpl implements PetService {
         return petRepository.save(new Pet(petDto))
                 .map(pet -> new PetDto(pet))
                 .doOnSuccess(p -> log.info("Created " + p + "."))
+                .doOnError(p -> log.info("Failed to create " + p + "."));
+    }
+
+    @Override
+    @Transactional
+    public Flux<PetDto> createAll(List<PetDto> petDtos) {
+        return petRepository.saveAll(PetUtility.petDtosToPets(petDtos))
+                .map(pet -> new PetDto(pet))
+                .doOnNext(p -> log.info("Created " + p + "."))
                 .doOnError(p -> log.info("Failed to create " + p + "."));
     }
 

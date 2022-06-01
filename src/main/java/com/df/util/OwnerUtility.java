@@ -26,4 +26,8 @@ public class OwnerUtility {
         return new OwnerRequest(owner);
     }
 
+    public static OwnerRequest ownerToOwnerRequest(OwnerDto ownerDto) {
+        return new OwnerRequest(ownerDto);
+    }
+
 }
