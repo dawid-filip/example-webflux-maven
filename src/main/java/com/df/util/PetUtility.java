@@ -16,5 +16,19 @@ public class PetUtility {
                     .collect(Collectors.toList())
                 : Collections.emptyList();
     }
+    public static List<Long> petDtosToPetIds(List<PetDto> petDtos) {
+        return petDtos!=null
+                ? petDtos.stream()
+                    .map(PetDto::getId)
+                    .collect(Collectors.toList())
+                : Collections.emptyList();
+    }
 
+    public static Pet petDtoToPet(PetDto petDto) {
+        return new Pet(petDto);
+    }
+
+    public static PetDto petToPetDto(Pet Pet) {
+        return new PetDto(Pet);
+    }
 }

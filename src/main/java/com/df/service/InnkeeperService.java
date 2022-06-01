@@ -9,4 +9,5 @@ public interface InnkeeperService {
     Mono<OwnerDto> getById(Long id);
     Mono<OwnerDto> create(OwnerDto ownerDto);
     Mono<OwnerDto> deleteById(Long id);
+    Mono<OwnerDto> alter(OwnerDto ownerDto);
 }

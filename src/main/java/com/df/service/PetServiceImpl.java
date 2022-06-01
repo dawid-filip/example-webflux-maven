@@ -99,5 +99,23 @@ public class PetServiceImpl implements PetService {
                                 .doOnError(p -> log.info("Failed to alter " + petDto + "."))
                 );
     }
+    @Override
+    @Transactional
+    public Flux<PetDto> alterAll(List<PetDto> petDto) {
+        return getByIds(PetUtility.petDtosToPetIds(petDto))
+                .map(PetUtility::petDtoToPet)
+                .collectList()
+                .flatMap(currentPetDtos ->
+                        petRepository.saveAll(PetUtility.petDtosToPets(petDto))
+                                .map(PetUtility::petToPetDto)
+                                .collectList()
+                                .doOnSuccess(pets -> {
+                                    pets.forEach(pet ->
+                                        log.info("Altered " + pet + ".")
+                                    );
+                                })
+                )
+                .flatMapMany(Flux::fromIterable);
+    }
 
 }

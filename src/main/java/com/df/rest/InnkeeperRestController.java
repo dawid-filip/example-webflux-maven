@@ -50,4 +50,12 @@ public class InnkeeperRestController {
                 .body(innkeeperService.deleteById(id));
     }
 
+    @PatchMapping
+    public ResponseEntity<Mono<OwnerDto>> alter(@RequestBody OwnerDto ownerDto) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .allow(HttpMethod.PATCH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(innkeeperService.alter(ownerDto));
+    }
+
 }

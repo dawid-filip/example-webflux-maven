@@ -67,7 +67,7 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                 .flatMap(petDtos -> {
                     ownerDto.setPets(petDtos);
                     return ownerService
-                            .create(OwnerUtility.ownerToOwnerRequest(ownerDto))
+                            .create(OwnerUtility.ownerDtoToOwnerRequest(ownerDto))
                             .map(owner -> {
                                 ownerDto.setId(owner.getId());
                                 return ownerDto;
@@ -90,6 +90,21 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                                                     return ownerDto;
                                                 })
                                 )
+                );
+    }
+
+    @Override
+    @Transactional
+    public Mono<OwnerDto> alter(OwnerDto ownerDto) {
+        return getById(ownerDto.getId())
+                .flatMap(currentOwnerDto ->
+                        ownerService.alter(OwnerUtility.ownerDtoToOwnerRequest(ownerDto))
+                                .map(owner -> ownerDto.getPets())
+                                .flatMap(petDtos -> {
+                                    petService.alterAll(ownerDto.getPets())
+                                            .subscribe();
+                                    return Mono.just(ownerDto);
+                                })
                 );
     }
 
