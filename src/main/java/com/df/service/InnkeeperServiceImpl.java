@@ -66,8 +66,7 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                 .collectList()
                 .flatMap(petDtos -> {
                     ownerDto.setPets(petDtos);
-                    return ownerService
-                            .create(OwnerUtility.ownerDtoToOwnerRequest(ownerDto))
+                    return ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerDto))
                             .map(owner -> {
                                 ownerDto.setId(owner.getId());
                                 return ownerDto;

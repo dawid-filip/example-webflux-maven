@@ -30,10 +30,10 @@ public class OwnerRequest {
     public OwnerRequest(OwnerDto ownerDto) {
         BeanUtils.copyProperties(ownerDto, this);
 
-        if (ownerDto.getPets()!=null) {
-            this.setPetIds(ownerDto.getPets().stream()
+        if (ownerDto!=null && ownerDto.getPets()!=null) {
+            this.petIds = ownerDto.getPets().stream()
                     .map(PetDto::getId)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList());
         }
     }
 }
