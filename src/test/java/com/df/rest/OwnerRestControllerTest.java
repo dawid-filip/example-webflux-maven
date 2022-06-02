@@ -24,8 +24,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = OwnerRestController.class)
@@ -57,10 +57,25 @@ public class OwnerRestControllerTest {
                 .expectBody(OwnerRequest.class)
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(ownerAfter.getId(), entityExchangeResult.getResponseBody().getId());
-                    assertEquals(1L, entityExchangeResult.getResponseBody().getPetIds().size());
+                    assertEquals(ownerAfter.getPetIds().size(), entityExchangeResult.getResponseBody().getPetIds().size());
                 });
 
         verify(ownerRepository, times(1)).save(ownerBefore);
+    }
+
+    @Test
+    void testCreateWhenNoBodyThenBadRequest() {
+        Mockito.when(ownerRepository.save(any())).thenReturn(Mono.empty());
+
+        webClient.post()
+                .uri(BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(ownerRepository, never()).save(any());
     }
 
     @Test
@@ -104,11 +119,11 @@ public class OwnerRestControllerTest {
 
     @Test
     void testGetAll() {
-        Owner owner1 = new Owner(1L, "firstName1", "lastName1", (short)21, null);
-        Owner owner2 = new Owner(2L, "firstName2", "lastName2", (short)22, List.of(1L));
-        Owner owner3 = new Owner(3L, "firstName3", "lastName3", (short)23, List.of(1L, 2L));
+        List<Owner> owners = List.of(new Owner(1L, "firstName1", "lastName1", (short)21, null),
+                new Owner(2L, "firstName2", "lastName2", (short)22, List.of(1L)),
+                new Owner(3L, "firstName3", "lastName3", (short)23, List.of(1L, 2L)));
 
-        Mockito.when(ownerRepository.findAll()).thenReturn(Flux.just(owner1, owner2, owner3));
+        Mockito.when(ownerRepository.findAll()).thenReturn(Flux.fromIterable(owners));
 
         webClient.get()
                 .uri(BASE_URL)
@@ -117,10 +132,10 @@ public class OwnerRestControllerTest {
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<Owner>>(){})
                 .consumeWith(entityExchangeResult -> {
-                    assertEquals(3, entityExchangeResult.getResponseBody().size());
-                    assertNull(entityExchangeResult.getResponseBody().get(0).getPetIds());
-                    assertEquals(1, entityExchangeResult.getResponseBody().get(1).getPetIds().size());
-                    assertEquals(2, entityExchangeResult.getResponseBody().get(2).getPetIds().size());
+                    assertEquals(owners.size(), entityExchangeResult.getResponseBody().size());
+                    assertEquals(owners.get(0).getPetIds(), entityExchangeResult.getResponseBody().get(0).getPetIds());
+                    assertEquals(owners.get(1).getPetIds().size(), entityExchangeResult.getResponseBody().get(1).getPetIds().size());
+                    assertEquals(owners.get(2).getPetIds().size(), entityExchangeResult.getResponseBody().get(2).getPetIds().size());
                 });
 
         verify(ownerRepository, times(1)).findAll();
@@ -212,6 +227,24 @@ public class OwnerRestControllerTest {
 
         verify(ownerRepository, times(1)).findById(ownerNew.getId());
         verify(ownerRepository, times(1)).save(ownerNew);
+    }
+
+    @Test
+    void testAlterWhenNoBodyThenBadRequest() {
+        Mockito.when(ownerRepository.findById(anyLong())).thenReturn(Mono.empty());
+        Mockito.when(ownerRepository.save(any())).thenReturn(Mono.empty());
+
+        webClient.patch()
+                .uri(BASE_URL)
+                .header(HttpHeaders.ALLOW, HttpMethod.PATCH.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(ownerRepository, never()).findById(anyLong());
+        verify(ownerRepository, never()).save(any());
     }
 
 }

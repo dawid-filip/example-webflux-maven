@@ -20,10 +20,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -59,6 +59,62 @@ public class PetRestControllerTest {
                 });
 
         verify(petRepository, times(1)).save(petBefore);
+    }
+
+    @Test
+    void testCreateWhenNoBodyThenBadRequest() {
+        Mockito.when(petRepository.save(any())).thenReturn(Mono.empty());
+
+        webClient.post()
+                .uri(BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void testCreateAll() {
+        List<Pet> petsBefore = List.of(new Pet(null, "petName1", (short)1, (short)1, (short)11),
+                new Pet(null, "petName2", (short)2, (short)2, (short)12));
+        List<Pet> petsAfter = List.of(new Pet(1L, "petName1", (short)1, (short)1, (short)11),
+                new Pet(2L, "petName2", (short)2, (short)2, (short)12));
+
+        Mockito.when(petRepository.saveAll(petsBefore)).thenReturn(Flux.fromIterable(petsAfter));
+
+        webClient.post()
+                .uri(BASE_URL + "/many")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
+                .body(Mono.just(petsBefore), getListPetDtoType())
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(getListPetDtoType())
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(petsAfter.size(), entityExchangeResult.getResponseBody().size());
+                    assertEquals(petsAfter.get(0).getId(), entityExchangeResult.getResponseBody().get(0).getId());
+                    assertEquals(petsAfter.get(1).getId(), entityExchangeResult.getResponseBody().get(1).getId());
+                });
+
+        verify(petRepository, times(1)).saveAll(petsBefore);
+    }
+
+    @Test
+    void testCreateAllWhenNoBodyThenBadRequest() {
+        Mockito.when(petRepository.saveAll(anyList())).thenReturn(Flux.empty());
+
+        webClient.post()
+                .uri(BASE_URL + "/many")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(petRepository, never()).saveAll(anyList());
     }
 
     @Test
@@ -114,7 +170,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .expectBody(getListPetDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(2, entityExchangeResult.getResponseBody().size());
                 });
@@ -133,7 +189,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .expectBody(getListPetDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(0, entityExchangeResult.getResponseBody().size());
                 });
@@ -154,7 +210,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .expectBody(getListPetDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(1, entityExchangeResult.getResponseBody().size());
                 });
@@ -164,7 +220,7 @@ public class PetRestControllerTest {
 
     @Test
     void testGetByIdsWhereNoIdsThenBadRequest() {
-        Mockito.when(petRepository.findAllById(Collections.emptyList())).thenReturn(Flux.empty());
+        Mockito.when(petRepository.findAllById(anyList())).thenReturn(Flux.empty());
 
         webClient.get()
                 .uri(uriBuilder -> uriBuilder.path(BASE_URL + "/ids").build())
@@ -172,25 +228,25 @@ public class PetRestControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
 
-        verify(petRepository, never()).findAllById(Collections.emptyList());
+        verify(petRepository, never()).findAllById(anyList());
     }
 
     @Test
     void testGetAll() {
-        Pet pet1 = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
-        Pet pet2 = new Pet(2L, "petName2", (short)4, (short)4, (short)17);
-        Pet pet3 = new Pet(3L, "petName3", (short)6, (short)6, (short)18);
+        List<Pet> pets = List.of(new Pet(1L, "petName1", (short)3, (short)3, (short)16),
+                new Pet(2L, "petName2", (short)4, (short)4, (short)17),
+                new Pet(3L, "petName3", (short)6, (short)6, (short)18));
 
-        Mockito.when(petRepository.findAll()).thenReturn(Flux.just(pet1, pet2, pet3));
+        Mockito.when(petRepository.findAll()).thenReturn(Flux.fromIterable(pets));
 
         webClient.get()
                 .uri(BASE_URL)
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .expectBody(getListPetDtoType())
                 .consumeWith(entityExchangeResult -> {
-                    assertEquals(3, entityExchangeResult.getResponseBody().size());
+                    assertEquals(pets.size(), entityExchangeResult.getResponseBody().size());
                 });
 
         verify(petRepository, times(1)).findAll();
@@ -206,7 +262,7 @@ public class PetRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<PetDto>>(){})
+                .expectBody(getListPetDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertTrue(entityExchangeResult.getResponseBody().isEmpty());
                 });
@@ -281,6 +337,76 @@ public class PetRestControllerTest {
 
         verify(petRepository, times(1)).findById(petNew.getId());
         verify(petRepository, times(1)).save(petNew);
+    }
+
+    @Test
+    void testAlterWhenNoBodyThenBadRequest() {
+        Mockito.when(petRepository.findById(anyLong())).thenReturn(Mono.empty());
+        Mockito.when(petRepository.save(any())).thenReturn(Mono.empty());
+
+        webClient.patch()
+                .uri(BASE_URL)
+                .header(HttpHeaders.ALLOW, HttpMethod.PATCH.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(petRepository, never()).findById(anyLong());
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void testAlterAll() {
+        List<Long> petIds = List.of(1L, 2L);
+        List<Pet> petsCurrent = List.of(new Pet(1L, "petName1", (short)1, (short)1, (short)11),
+                new Pet(2L, "petName2", (short)2, (short)2, (short)12));
+        List<Pet> petsNew = List.of(new Pet(1L, "petName1New", (short)1, (short)1, (short)11),
+                new Pet(2L, "petName2New", (short)2, (short)2, (short)12));
+
+        Mockito.when(petRepository.findAllById(petIds)).thenReturn(Flux.fromIterable(petsCurrent));
+        Mockito.when(petRepository.saveAll(petsNew)).thenReturn(Flux.fromIterable(petsNew));
+
+        webClient.patch()
+                .uri(BASE_URL + "/many")
+                .header(HttpHeaders.ALLOW, HttpMethod.PATCH.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(petsNew), getListPetDtoType())
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(getListPetDtoType())
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(petsNew.size(), entityExchangeResult.getResponseBody().size());
+                    assertEquals(petsNew.get(0).getName(), entityExchangeResult.getResponseBody().get(0).getName());
+                    assertEquals(petsNew.get(1).getName(), entityExchangeResult.getResponseBody().get(1).getName());
+                });
+
+        verify(petRepository, times(1)).findAllById(petIds);
+        verify(petRepository, times(1)).saveAll(petsNew);
+    }
+
+    @Test
+    void testAlterAllWhenNoBodyThenBadRequest() {
+        Mockito.when(petRepository.findAllById(anyList())).thenReturn(Flux.empty());
+        Mockito.when(petRepository.saveAll(anyList())).thenReturn(Flux.empty());
+
+        webClient.patch()
+                .uri(BASE_URL + "/many")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
+                .body(Mono.empty(), String.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+        verify(petRepository, never()).findAllById(anyList());
+        verify(petRepository, never()).saveAll(anyList());
+    }
+
+
+    private ParameterizedTypeReference<List<PetDto>> getListPetDtoType() {
+        return new ParameterizedTypeReference<List<PetDto>>(){};
     }
 
 }

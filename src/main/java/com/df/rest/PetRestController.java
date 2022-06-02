@@ -52,6 +52,14 @@ public class PetRestController {
                 .body(petService.create(petDto));
     }
 
+    @PostMapping("/many")
+    public ResponseEntity<Flux<PetDto>> createAll(@RequestBody List<PetDto> petDtos) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .allow(HttpMethod.POST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(petService.createAll(petDtos));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Mono<PetDto>> deleteById(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -66,6 +74,14 @@ public class PetRestController {
                 .allow(HttpMethod.PATCH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(petService.alter(petDto));
+    }
+
+    @PatchMapping("/many")
+    public ResponseEntity<Flux<PetDto>> alterAll(@RequestBody List<PetDto> petDtos) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .allow(HttpMethod.POST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(petService.alterAll(petDtos));
     }
 
 }

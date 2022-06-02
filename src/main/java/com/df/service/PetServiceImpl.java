@@ -23,21 +23,21 @@ public class PetServiceImpl implements PetService {
     @Override
     public Mono<PetDto> getById(Long id) {
         return petRepository.findById(id)
-                .map(pet -> new PetDto(pet))
+                .map(PetUtility::petToPetDto)
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Flux<PetDto> getByIds(List<Long> ids) {
         return petRepository.findAllById(ids)
-                .map(pet -> new PetDto(pet))
+                .map(PetUtility::petToPetDto)
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Flux<PetDto> getAll() {
         return petRepository.findAll()
-                .map(pet -> new PetDto(pet))
+                .map(PetUtility::petToPetDto)
                 .switchIfEmpty(Flux.empty());
     }
 
@@ -45,7 +45,7 @@ public class PetServiceImpl implements PetService {
     @Transactional
     public Mono<PetDto> create(PetDto petDto) {
         return petRepository.save(new Pet(petDto))
-                .map(pet -> new PetDto(pet))
+                .map(PetUtility::petToPetDto)
                 .doOnSuccess(p -> log.info("Created " + p + "."))
                 .doOnError(p -> log.info("Failed to create " + p + "."));
     }
@@ -54,7 +54,7 @@ public class PetServiceImpl implements PetService {
     @Transactional
     public Flux<PetDto> createAll(List<PetDto> petDtos) {
         return petRepository.saveAll(PetUtility.petDtosToPets(petDtos))
-                .map(pet -> new PetDto(pet))
+                .map(PetUtility::petToPetDto)
                 .doOnNext(p -> log.info("Created " + p + "."))
                 .doOnError(p -> log.info("Failed to create " + p + "."));
     }
@@ -93,12 +93,13 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> alter(PetDto petDto) {
         return getById(petDto.getId())
                 .flatMap(currentPetDto ->
-                        petRepository.save(new Pet(petDto))
+                        petRepository.save(PetUtility.petDtoToPet(petDto))
                                 .flatMap(pet -> Mono.just(new PetDto(pet)))
                                 .doOnSuccess(p -> log.info("Altered " + petDto + "."))
                                 .doOnError(p -> log.info("Failed to alter " + petDto + "."))
                 );
     }
+
     @Override
     @Transactional
     public Flux<PetDto> alterAll(List<PetDto> petDto) {
@@ -115,7 +116,8 @@ public class PetServiceImpl implements PetService {
                                     );
                                 })
                 )
-                .flatMapMany(Flux::fromIterable);
+                .flatMapMany(Flux::fromIterable)
+                .map(p -> p);
     }
 
 }
