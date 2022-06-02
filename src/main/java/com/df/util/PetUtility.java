@@ -12,7 +12,7 @@ public class PetUtility {
     public static List<Pet> petDtosToPets(List<PetDto> petDtos) {
         return petDtos!=null
                 ? petDtos.stream()
-                    .map(petDto -> new Pet(petDto))
+                    .map(PetUtility::petDtoToPet)
                     .collect(Collectors.toList())
                 : Collections.emptyList();
     }

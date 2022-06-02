@@ -8,6 +8,7 @@ import com.df.service.InnkeeperServiceImpl;
 import com.df.service.OwnerService;
 import com.df.service.PetService;
 import com.df.util.OwnerUtility;
+import com.df.util.PetUtility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = InnkeeperRestController.class)
-@Import({InnkeeperServiceImpl.class})
+@Import({InnkeeperServiceImpl.class, OwnerUtility.class, PetUtility.class})
 public class InnkeeperRestControllerTest {
 
     private static final String BASE_URL = "/api/v1/innkeeper";
@@ -137,7 +138,7 @@ public class InnkeeperRestControllerTest {
         PetDto petBefore = new PetDto(null, "petName1", (short)1, (short)1, (short)11);
         OwnerDto ownerBefore = new OwnerDto(null, "firstName1", "lastName1", (short)21, List.of(petBefore));
         PetDto petDtoAfter = new PetDto(1L, "petName1", (short)1, (short)1, (short)11);
-        Owner ownerAfter = new Owner(1L, "firstName1", "lastName1", (short)21, List.of(1L));
+        Owner ownerAfter = new Owner(1L, "firstName1", "lastName1", (short)21, List.of(petDtoAfter.getId()));
 
         Mockito.when(petService.createAll(List.of(petBefore))).thenReturn(Flux.just(petDtoAfter));
         Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(ownerAfter));
@@ -152,7 +153,7 @@ public class InnkeeperRestControllerTest {
                 .expectBody(OwnerDto.class)
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(ownerAfter.getId(), entityExchangeResult.getResponseBody().getId());
-                    assertEquals(ownerAfter.getPetIds().get(0), entityExchangeResult.getResponseBody().getPets().get(0).getId());
+                    assertEquals(petDtoAfter.getId(), entityExchangeResult.getResponseBody().getPets().get(0).getId());
                 });
 
         verify(ownerService, times(1)).create(new OwnerRequest(ownerBefore));
