@@ -10,18 +10,13 @@ import com.df.service.PetService;
 import com.df.util.OwnerUtility;
 import com.df.util.PetUtility;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,15 +28,11 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = InnkeeperRestController.class)
 @Import({InnkeeperServiceImpl.class, OwnerUtility.class, PetUtility.class})
-public class InnkeeperRestControllerTest {
+public class InnkeeperRestControllerTest extends BasicControllerTestConfig {
 
     private static final String BASE_URL = "/api/v1/innkeeper";
-
-    @Autowired
-    private WebTestClient webClient;
 
     @MockBean
     private OwnerService ownerService;
@@ -105,7 +96,7 @@ public class InnkeeperRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<OwnerDto>>(){})
+                .expectBody(getListOwnerDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(1L, entityExchangeResult.getResponseBody().size());
                 });
@@ -124,7 +115,7 @@ public class InnkeeperRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<OwnerDto>>(){})
+                .expectBody(getListOwnerDtoType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(0L, entityExchangeResult.getResponseBody().size());
                 });

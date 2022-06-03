@@ -6,18 +6,13 @@ import com.df.request.OwnerRequest;
 import com.df.service.OwnerServiceImpl;
 import com.df.util.OwnerUtility;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,15 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = OwnerRestController.class)
 @Import({OwnerServiceImpl.class})
-public class OwnerRestControllerTest {
+public class OwnerRestControllerTest extends BasicControllerTestConfig {
 
     private static final String BASE_URL = "/api/v1/owner";
-
-    @Autowired
-    private WebTestClient webClient;
 
     @MockBean
     private OwnerRepository ownerRepository;
@@ -130,7 +121,7 @@ public class OwnerRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<Owner>>(){})
+                .expectBody(getListOwnerType())
                 .consumeWith(entityExchangeResult -> {
                     assertEquals(owners.size(), entityExchangeResult.getResponseBody().size());
                     assertEquals(owners.get(0).getPetIds(), entityExchangeResult.getResponseBody().get(0).getPetIds());
@@ -151,7 +142,7 @@ public class OwnerRestControllerTest {
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(new ParameterizedTypeReference<List<Owner>>(){})
+                .expectBody(getListOwnerType())
                 .consumeWith(entityExchangeResult -> {
                     assertTrue(entityExchangeResult.getResponseBody().isEmpty());
                 });

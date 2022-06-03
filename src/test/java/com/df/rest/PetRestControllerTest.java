@@ -5,18 +5,13 @@ import com.df.entity.Pet;
 import com.df.repository.PetRepository;
 import com.df.service.PetServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,15 +21,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = PetRestController.class)
 @Import({PetServiceImpl.class})
-public class PetRestControllerTest {
+public class PetRestControllerTest extends BasicControllerTestConfig {
 
     private static final String BASE_URL = "/api/v1/pet";
-
-    @Autowired
-    private WebTestClient webClient;
 
     @MockBean
     private PetRepository petRepository;
@@ -124,7 +115,7 @@ public class PetRestControllerTest {
         Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
 
         webClient.get()
-                .uri(BASE_URL + "/{id}",pet.getId())
+                .uri(BASE_URL + "/{id}", pet.getId())
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
@@ -143,7 +134,7 @@ public class PetRestControllerTest {
         Mockito.when(petRepository.findById(petId)).thenReturn(Mono.empty());
 
         webClient.get()
-                .uri(BASE_URL + "/{id}",petId)
+                .uri(BASE_URL + "/{id}", petId)
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
@@ -402,11 +393,6 @@ public class PetRestControllerTest {
 
         verify(petRepository, never()).findAllById(anyList());
         verify(petRepository, never()).saveAll(anyList());
-    }
-
-
-    private ParameterizedTypeReference<List<PetDto>> getListPetDtoType() {
-        return new ParameterizedTypeReference<List<PetDto>>(){};
     }
 
 }

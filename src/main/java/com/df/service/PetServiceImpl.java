@@ -124,18 +124,7 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public Flux<PetDto> alterAll(List<PetDto> petDto) {
-        return Flux.just(petDto)
-                .flatMap(currentPetDtos -> {
-                    List<PetDto> correctPetDtos = Objects.nonNull(currentPetDtos) && !currentPetDtos.isEmpty() ?
-                            currentPetDtos.stream()
-                                    .filter(p -> p.getId() != null)
-                                    .collect(Collectors.toList()) :
-                            List.of();
-                    return correctPetDtos.isEmpty() ?
-                            Mono.empty() :
-                            Flux.fromIterable(correctPetDtos).collectList();
-                })
-                .switchIfEmpty(Mono.empty())
+        return validatePetDtos(petDto)
                 .flatMap(availablePetDtos ->
                         getByIds(PetUtility.petDtosToPetIds(availablePetDtos))
                                 .map(PetUtility::petDtoToPet)
@@ -152,6 +141,21 @@ public class PetServiceImpl implements PetService {
                                 .map(p -> p)
                 )
                 .map(p -> p);
+    }
+
+    private Flux<List<PetDto>> validatePetDtos(List<PetDto> petDto) {
+        return Flux.just(petDto)
+                .flatMap(currentPetDtos -> {
+                    List<PetDto> correctPetDtos = Objects.nonNull(currentPetDtos) && !currentPetDtos.isEmpty() ?
+                            currentPetDtos.stream()
+                                    .filter(p -> p.getId() != null)
+                                    .collect(Collectors.toList()) :
+                            List.of();
+                    return correctPetDtos.isEmpty() ?
+                            Mono.empty() :
+                            Mono.just(correctPetDtos);
+                })
+                .switchIfEmpty(Mono.empty());
     }
 
 }
