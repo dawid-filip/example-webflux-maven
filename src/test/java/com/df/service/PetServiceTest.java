@@ -217,13 +217,11 @@ public class PetServiceTest {
 
     @Test
     public void testCreateAllEmpty() {
-        Mockito.when(petRepository.saveAll(List.of())).thenReturn(Flux.empty());
-
         StepVerifier.create(petServiceImpl.createAll(List.of()))
                 .expectNextCount(0L)
                 .verifyComplete();
 
-        Mockito.verify(petRepository, times(1)).saveAll(List.of());
+        Mockito.verify(petRepository, never()).saveAll(anyList());
     }
 
     @Test

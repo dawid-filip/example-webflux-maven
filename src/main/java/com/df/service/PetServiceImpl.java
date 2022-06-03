@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,10 +72,13 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public Flux<PetDto> createAll(List<PetDto> petDtos) {
-        return petRepository.saveAll(PetUtility.petDtosToPets(petDtos))
-                .map(PetUtility::petToPetDto)
-                .doOnNext(p -> log.info("Created " + p + "."))
-                .doOnError(p -> log.info("Failed to create " + p + "."));
+        return validatePetDtos(petDtos, false)
+                .flatMap(availablePetDtos ->
+                        petRepository.saveAll(PetUtility.petDtosToPets(petDtos))
+                                .map(PetUtility::petToPetDto)
+                                .doOnNext(p -> log.info("Created " + p + "."))
+                                .doOnError(p -> log.info("Failed to create " + p + "."))
+                );
     }
 
     @Override
@@ -124,7 +128,7 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public Flux<PetDto> alterAll(List<PetDto> petDto) {
-        return validatePetDtos(petDto)
+        return validatePetDtos(petDto, true)
                 .flatMap(availablePetDtos ->
                         getByIds(PetUtility.petDtosToPetIds(availablePetDtos))
                                 .map(PetUtility::petDtoToPet)
@@ -143,12 +147,14 @@ public class PetServiceImpl implements PetService {
                 .map(p -> p);
     }
 
-    private Flux<List<PetDto>> validatePetDtos(List<PetDto> petDto) {
+    private Flux<List<PetDto>> validatePetDtos(List<PetDto> petDto, boolean validatePetIds) {
         return Flux.just(petDto)
                 .flatMap(currentPetDtos -> {
+                    Predicate<PetDto> validateIds = validatePetIds
+                            ? p -> p.getId() != null : p -> true;
                     List<PetDto> correctPetDtos = Objects.nonNull(currentPetDtos) && !currentPetDtos.isEmpty() ?
                             currentPetDtos.stream()
-                                    .filter(p -> p.getId() != null)
+                                    .filter(validateIds)
                                     .collect(Collectors.toList()) :
                             List.of();
                     return correctPetDtos.isEmpty() ?
