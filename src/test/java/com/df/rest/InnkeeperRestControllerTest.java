@@ -4,6 +4,7 @@ import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
 import com.df.entity.Owner;
 import com.df.request.OwnerRequest;
+import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.InnkeeperServiceImpl;
 import com.df.service.OwnerService;
 import com.df.service.PetService;

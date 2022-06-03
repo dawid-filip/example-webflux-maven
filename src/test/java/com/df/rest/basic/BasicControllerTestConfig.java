@@ -1,4 +1,4 @@
-package com.df.rest;
+package com.df.rest.basic;
 
 import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
@@ -12,7 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
-abstract class BasicControllerTestConfig {
+public abstract class BasicControllerTestConfig {
 
     @Autowired
     protected WebTestClient webClient;

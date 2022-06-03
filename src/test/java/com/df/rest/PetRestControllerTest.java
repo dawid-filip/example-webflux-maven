@@ -3,6 +3,7 @@ package com.df.rest;
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
 import com.df.repository.PetRepository;
+import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.PetServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

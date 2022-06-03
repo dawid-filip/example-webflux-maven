@@ -3,6 +3,7 @@ package com.df.rest;
 import com.df.entity.Owner;
 import com.df.repository.OwnerRepository;
 import com.df.request.OwnerRequest;
+import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.OwnerServiceImpl;
 import com.df.util.OwnerUtility;
 import org.junit.jupiter.api.Test;
