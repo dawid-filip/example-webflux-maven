@@ -20,7 +20,15 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public Mono<Owner> getById(Long id) {
-        return ownerRepository.findById(id)
+        return validateId(id)
+                .flatMap(ownerId ->
+                        ownerRepository.findById(ownerId)
+                                .switchIfEmpty(Mono.empty())
+                );
+    }
+
+    private Mono<Long> validateId(Long id) {
+        return Mono.justOrEmpty(id)
                 .switchIfEmpty(Mono.empty());
     }
 
@@ -33,9 +41,12 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     @Transactional
     public Mono<Owner> create(OwnerRequest ownerRequest) {
-        return ownerRepository.save(OwnerUtility.ownerRequestToOwner(ownerRequest))
-                .doOnSuccess(o -> log.info("Created " + o + "."))
-                .doOnError(o -> log.info("Failed to create " + o + "."));
+        return validateOwnerRequest(ownerRequest)
+                .flatMap(validatedOwnerRequest ->
+                        ownerRepository.save(OwnerUtility.ownerRequestToOwner(validatedOwnerRequest))
+                                .doOnSuccess(o -> log.info("Created " + o + "."))
+                                .doOnError(o -> log.info("Failed to create " + o + "."))
+                );
     }
 
     @Override
@@ -53,13 +64,21 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     @Transactional
     public Mono<Owner> alter(OwnerRequest ownerRequest) {
-        return getById(ownerRequest.getId())
-                .flatMap(currentOwner ->
-                        ownerRepository.save(OwnerUtility.ownerRequestToOwner(ownerRequest))
-                                .flatMap(owner -> Mono.just(owner))
-                                .doOnSuccess(o -> log.info("Altered " + ownerRequest + "."))
-                                .doOnError(o -> log.info("Failed to alter " + ownerRequest + "."))
+        return validateOwnerRequest(ownerRequest)
+                .flatMap(validatedOwnerRequest ->
+                        getById(ownerRequest.getId())
+                                .flatMap(currentOwner ->
+                                        ownerRepository.save(OwnerUtility.ownerRequestToOwner(validatedOwnerRequest))
+                                                .flatMap(owner -> Mono.just(owner))
+                                                .doOnSuccess(o -> log.info("Altered " + ownerRequest + "."))
+                                                .doOnError(o -> log.info("Failed to alter " + ownerRequest + "."))
+                                )
                 );
+    }
+
+    private Mono<OwnerRequest> validateOwnerRequest(OwnerRequest ownerRequest) {
+        return Mono.justOrEmpty(ownerRequest)
+                .switchIfEmpty(Mono.empty());
     }
 
 }
