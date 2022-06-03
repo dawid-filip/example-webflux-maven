@@ -185,7 +185,7 @@ public class InnkeeperRestControllerTest {
         Mockito.when(ownerService.getById(ownerDto.getId())).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerDto)));
         Mockito.when(ownerService.deleteById(ownerDto.getId())).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerDto)));
         Mockito.when(petService.getByIds(List.of(petDto.getId()))).thenReturn(Flux.just(petDto));
-        Mockito.when(petService.deleteAllById(List.of(petDto.getId()))).thenReturn(Flux.just(petDto));
+        Mockito.when(petService.deleteByIds(List.of(petDto.getId()))).thenReturn(Flux.just(petDto));
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", ownerDto.getId())
@@ -202,7 +202,7 @@ public class InnkeeperRestControllerTest {
         verify(ownerService, times(1)).getById(ownerDto.getId());
         verify(ownerService, times(1)).deleteById(ownerDto.getId());
         verify(petService, times(1)).getByIds(List.of(petDto.getId()));
-        verify(petService, times(1)).deleteAllById(List.of(petDto.getId()));
+        verify(petService, times(1)).deleteByIds(List.of(petDto.getId()));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class InnkeeperRestControllerTest {
         Mockito.when(ownerService.getById(anyLong())).thenReturn(Mono.empty());
         Mockito.when(ownerService.deleteById(anyLong())).thenReturn(Mono.empty());
         Mockito.when(petService.getByIds(anyList())).thenReturn(Flux.empty());
-        Mockito.when(petService.deleteAllById(anyList())).thenReturn(Flux.empty());
+        Mockito.when(petService.deleteByIds(anyList())).thenReturn(Flux.empty());
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", 1L)
@@ -226,7 +226,7 @@ public class InnkeeperRestControllerTest {
         verify(ownerService, times(1)).getById(anyLong());
         verify(ownerService, never()).deleteById(anyLong());
         verify(petService, never()).getByIds(anyList());
-        verify(petService, never()).deleteAllById(anyList());
+        verify(petService, never()).deleteByIds(anyList());
     }
 
     @Test

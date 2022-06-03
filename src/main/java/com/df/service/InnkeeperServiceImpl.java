@@ -82,7 +82,7 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                 .flatMap(ownerDto ->
                         ownerService.deleteById(id)
                                 .flatMap(owner ->
-                                        petService.deleteAllById(owner.getPetIds())
+                                        petService.deleteByIds(owner.getPetIds())
                                                 .collectList()
                                                 .map(petDtos -> {
                                                     ownerDto.setPets(petDtos); // set deleted pets

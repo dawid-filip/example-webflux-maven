@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 public class PetUtility {
 
     public static List<Pet> petDtosToPets(List<PetDto> petDtos) {
-        return petDtos!=null
+        return petDtos != null && !petDtos.isEmpty()
                 ? petDtos.stream()
                     .map(PetUtility::petDtoToPet)
                     .collect(Collectors.toList())
                 : Collections.emptyList();
     }
     public static List<Long> petDtosToPetIds(List<PetDto> petDtos) {
-        return petDtos!=null
+        return petDtos != null && !petDtos.isEmpty()
                 ? petDtos.stream()
                     .map(PetDto::getId)
                     .collect(Collectors.toList())
