@@ -31,4 +31,8 @@ public class OwnerDto {
     public OwnerDto(OwnerRequest ownerRequest) {
         BeanUtils.copyProperties(ownerRequest, this);
     }
+
+    public OwnerDto(OwnerDto ownerDto) {
+        BeanUtils.copyProperties(ownerDto, this);
+    }
 }
