@@ -2,6 +2,7 @@ package com.df.util;
 
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,10 +26,27 @@ public class PetUtility {
     }
 
     public static Pet petDtoToPet(PetDto petDto) {
-        return new Pet(petDto);
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petDto, pet);
+        return pet;
     }
 
-    public static PetDto petToPetDto(Pet Pet) {
-        return new PetDto(Pet);
+    public static PetDto petToPetDto(Pet pet) {
+        PetDto petDto = new PetDto();
+        BeanUtils.copyProperties(pet, petDto);
+        return petDto;
     }
+
+    public static PetDto petDtoToPetDto(PetDto PetDto) {
+        PetDto petDtoResult = new PetDto();
+        BeanUtils.copyProperties(PetDto, petDtoResult);
+        return petDtoResult;
+    }
+
+    public static PetDto petIdToPetDto(Long petId) {
+        PetDto petDto = new PetDto();
+        petDto.setId(petId);
+        return petDto;
+    }
+
 }

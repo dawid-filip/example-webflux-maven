@@ -129,11 +129,13 @@ public class InnkeeperRestControllerTest extends BasicControllerTestConfig {
     void testCreate() {
         PetDto petBefore = new PetDto(null, "petName1", (short)1, (short)1, (short)11);
         OwnerDto ownerBefore = new OwnerDto(null, "firstName1", "lastName1", (short)21, List.of(petBefore));
+        OwnerRequest ownerRequest = new OwnerRequest(null, "firstName1", "lastName1", (short)21, List.of(1L));
+
         PetDto petDtoAfter = new PetDto(1L, "petName1", (short)1, (short)1, (short)11);
         Owner ownerAfter = new Owner(1L, "firstName1", "lastName1", (short)21, List.of(petDtoAfter.getId()));
 
         Mockito.when(petService.createAll(List.of(petBefore))).thenReturn(Flux.just(petDtoAfter));
-        Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(ownerAfter));
+        Mockito.when(ownerService.create(ownerRequest)).thenReturn(Mono.just(ownerAfter));
 
         webClient.post()
                 .uri(BASE_URL)
@@ -148,7 +150,7 @@ public class InnkeeperRestControllerTest extends BasicControllerTestConfig {
                     assertEquals(petDtoAfter.getId(), entityExchangeResult.getResponseBody().getPets().get(0).getId());
                 });
 
-        verify(ownerService, times(1)).create(new OwnerRequest(ownerBefore));
+        verify(ownerService, times(1)).create(ownerRequest);
         verify(petService, times(1)).createAll(List.of(petBefore));
     }
 

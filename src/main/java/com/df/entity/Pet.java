@@ -1,8 +1,6 @@
 package com.df.entity;
 
-import com.df.dto.PetDto;
 import lombok.*;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -13,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode
-@ToString
+@ToString(callSuper = true)
 public class Pet {
 
     @Id
@@ -32,7 +30,4 @@ public class Pet {
     @Column("length")
     private Short length;
 
-    public Pet(PetDto petDto) {
-        BeanUtils.copyProperties(petDto, this);
-    }
 }

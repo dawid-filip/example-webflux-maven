@@ -45,7 +45,7 @@ public class OwnerServiceImpl implements OwnerService {
                 .flatMap(validatedOwnerRequest ->
                         ownerRepository.save(OwnerUtility.ownerRequestToOwner(validatedOwnerRequest))
                                 .doOnSuccess(o -> log.info("Created " + o + "."))
-                                .doOnError(o -> log.info("Failed to create " + o + "."))
+                                .doOnError(e -> log.info("Failed to create " + ownerRequest + ".", e))
                 );
     }
 
@@ -56,7 +56,7 @@ public class OwnerServiceImpl implements OwnerService {
                 .flatMap(owner ->
                         ownerRepository.deleteById(id)
                                 .doOnSuccess(o -> log.info("Deleted " + owner + "."))
-                                .doOnError(o -> log.info("Failed to delete " + owner + "."))
+                                .doOnError(e -> log.info("Failed to delete " + owner + ".", e))
                                 .then(Mono.just(owner))
                 );
     }
@@ -71,7 +71,7 @@ public class OwnerServiceImpl implements OwnerService {
                                         ownerRepository.save(OwnerUtility.ownerRequestToOwner(validatedOwnerRequest))
                                                 .flatMap(owner -> Mono.just(owner))
                                                 .doOnSuccess(o -> log.info("Altered " + ownerRequest + "."))
-                                                .doOnError(o -> log.info("Failed to alter " + ownerRequest + "."))
+                                                .doOnError(e -> log.info("Failed to alter " + ownerRequest + ".", e))
                                 )
                 );
     }

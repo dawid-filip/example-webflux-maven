@@ -64,7 +64,7 @@ public class PetServiceImpl implements PetService {
                         petRepository.save(pet)
                                 .map(PetUtility::petToPetDto)
                                 .doOnSuccess(p -> log.info("Created " + p + "."))
-                                .doOnError(p -> log.info("Failed to create " + p + "."))
+                                .doOnError(e -> log.info("Failed to create " + petDto + ".", e))
                 )
                 .map(p -> p);
     }
@@ -77,7 +77,7 @@ public class PetServiceImpl implements PetService {
                         petRepository.saveAll(PetUtility.petDtosToPets(petDtos))
                                 .map(PetUtility::petToPetDto)
                                 .doOnNext(p -> log.info("Created " + p + "."))
-                                .doOnError(p -> log.info("Failed to create " + p + "."))
+                                .doOnError(e -> log.info("Failed to create " + petDtos + ".", e))
                 );
     }
 
@@ -88,7 +88,7 @@ public class PetServiceImpl implements PetService {
                 .flatMap(petDto ->
                         petRepository.deleteById(id)
                                 .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
-                                .doOnError(p -> log.info("Failed to delete " + petDto + "."))
+                                .doOnError(e -> log.info("Failed to delete " + petDto + ".", e))
                                 .then(Mono.just(petDto))
                 );
     }
@@ -99,14 +99,15 @@ public class PetServiceImpl implements PetService {
         return getByIds(ids)
                 .collectList()
                 .filter(petDtos -> !petDtos.isEmpty())
-                .flatMap(petDtos ->
-                        petRepository.deleteAllById(petDtos.stream().map(PetDto::getId).collect(Collectors.toList()))//ids)
-                                .doOnSuccess(p ->
-                                        petDtos.forEach(petDto -> log.info("Deleted " + petDto + "."))
-                                )
-                                .doOnError(p -> log.info("Failed to delete " + petDtos.size() + ", ids=" + ids + "."))
-                                .then(Mono.just(petDtos))
-                )
+                .flatMap(petDtos -> {
+                    List<Long> petIds = petDtos.stream()
+                            .map(PetDto::getId)
+                            .collect(Collectors.toList());
+                    return petRepository.deleteAllById(petIds) // ids
+                            .doOnSuccess(p -> petDtos.forEach(petDto -> log.info("Deleted " + petDto + ".")))
+                            .doOnError(e -> log.info("Failed to delete " + petDtos + ".", e))
+                            .then(Mono.just(petDtos));
+                })
                 .flatMapMany(Flux::fromIterable)
                 .map(p -> p);
     }
@@ -117,18 +118,18 @@ public class PetServiceImpl implements PetService {
         return Mono.justOrEmpty(petDto)
                 .switchIfEmpty(Mono.empty())
                 .flatMap(pet -> getById(pet.getId()))
-                .flatMap(currentPetDto ->
+                .flatMap(petdb ->
                         petRepository.save(PetUtility.petDtoToPet(petDto))
-                                .flatMap(pet -> Mono.just(new PetDto(pet)))
+                                .flatMap(pet -> Mono.just(PetUtility.petToPetDto(pet)))
                                 .doOnSuccess(p -> log.info("Altered " + petDto + "."))
-                                .doOnError(p -> log.info("Failed to alter " + petDto + "."))
+                                .doOnError(e -> log.error("Failed to alter " + petDto + ".", e))
                 );
     }
 
     @Override
     @Transactional
-    public Flux<PetDto> alterAll(List<PetDto> petDto) {
-        return validatePetDtos(petDto, true)
+    public Flux<PetDto> alterAll(List<PetDto> petDtos) {
+        return validatePetDtos(petDtos, true)
                 .flatMap(availablePetDtos ->
                         getByIds(PetUtility.petDtosToPetIds(availablePetDtos))
                                 .map(PetUtility::petDtoToPet)
@@ -137,9 +138,8 @@ public class PetServiceImpl implements PetService {
                                         petRepository.saveAll(PetUtility.petDtosToPets(availablePetDtos))
                                                 .map(PetUtility::petToPetDto)
                                                 .collectList()
-                                                .doOnSuccess(pets ->
-                                                        pets.forEach(pet -> log.info("Altered " + pet + "."))
-                                                )
+                                                .doOnSuccess(pets -> pets.forEach(pet -> log.info("Altered " + pet + ".")))
+                                                .doOnError(e -> log.error("Failed to alter " + petDtos + ".", e))
                                 )
                                 .flatMapMany(Flux::fromIterable)
                                 .map(p -> p)

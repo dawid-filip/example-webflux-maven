@@ -29,8 +29,9 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                     List<Owner> owners = tuple.getT1();
                     List<PetDto> petDtos = tuple.getT2();
 
-                    return owners.stream().map(owner ->
-                                    new OwnerDto(owner, getPetDtosByIds(owner.getPetIds(), petDtos)))
+                    return owners.stream()
+                            .map(owner ->
+                                    OwnerUtility.ownerToOwnerDto(owner, getPetDtosByIds(owner.getPetIds(), petDtos)))
                             .collect(Collectors.toList());
                 })
                 .flatMapMany(Flux::fromIterable)
@@ -40,12 +41,12 @@ public class InnkeeperServiceImpl implements InnkeeperService {
     @Override
     public Mono<OwnerDto> getById(Long id) {
         return ownerService.getById(id)
+                .switchIfEmpty(Mono.empty())
                 .flatMap(owner ->
                         petService.getByIds(owner.getPetIds())
                                 .collectList()
                                 .map(petDtos ->
-                                        new OwnerDto(owner, getPetDtosByIds(owner.getPetIds(), petDtos))
-                                )
+                                        OwnerUtility.ownerToOwnerDto(owner, getPetDtosByIds(owner.getPetIds(), petDtos)))
                                 .map(p -> p)
                 )
                 .map(o -> o);
@@ -71,7 +72,6 @@ public class InnkeeperServiceImpl implements InnkeeperService {
                                 ownerDto.setId(owner.getId());
                                 return ownerDto;
                             });
-
                 });
     }
 

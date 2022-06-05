@@ -4,6 +4,7 @@ import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
 import com.df.entity.Owner;
 import com.df.entity.Pet;
+import com.df.request.OwnerRequest;
 import com.df.util.OwnerUtility;
 import com.df.util.PetUtility;
 import org.junit.Test;
@@ -205,13 +206,15 @@ public class InnkeeperServiceTest {
     public void testCreate() {
         PetDto petBefore = new PetDto(null, "petName1", (short) 2, (short) 3, (short) 11);
         OwnerDto ownerBefore = new OwnerDto(null, "firstName1", "lastName1", (short) 21, List.of(petBefore));
+        OwnerRequest ownerRequest = new OwnerRequest(null, "firstName1", "lastName1", (short)21, List.of(1L));
+
         PetDto petAfter = new PetDto(1L, "petName1", (short) 2, (short) 3, (short) 11);
         OwnerDto ownerAfter = new OwnerDto(1L, "firstName1", "lastName1", (short) 21, List.of(petAfter));
 
         Mockito.when(petService.createAll(ownerBefore.getPets())).thenReturn(Flux.fromIterable(ownerAfter.getPets()));
-        Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
+        Mockito.when(ownerService.create(ownerRequest)).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
 
-        StepVerifier.create(innkeeperServiceImpl.create(new OwnerDto(ownerBefore)))
+        StepVerifier.create(innkeeperServiceImpl.create(OwnerUtility.ownerDtoToOwnerDto(ownerBefore)))
                 .expectNextMatches(expOwnerDto -> ownerAfter.getId() == expOwnerDto.getId() &&
                         ownerAfter.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerAfter.getPets().size() == expOwnerDto.getPets().size() &&
@@ -221,20 +224,22 @@ public class InnkeeperServiceTest {
                 .verifyComplete();
 
         Mockito.verify(petService, times(1)).createAll(ownerBefore.getPets());
-        Mockito.verify(ownerService, times(1)).create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore));
+        Mockito.verify(ownerService, times(1)).create(ownerRequest);
     }
 
     @Test
-    public void testCreateWhenIdsThenIgnore() {
+    public void testCreateWhenOwnerIdSetThenItIsIgnore() {
         PetDto petBefore = new PetDto(2L, "petName1", (short) 2, (short) 3, (short) 11);
         OwnerDto ownerBefore = new OwnerDto(2L, "firstName1", "lastName1", (short) 21, List.of(petBefore));
+        OwnerRequest ownerRequest = new OwnerRequest(2L, "firstName1", "lastName1", (short)21, List.of(1L));
+
         PetDto petAfter = new PetDto(1L, "petName1", (short) 2, (short) 3, (short) 11);
         OwnerDto ownerAfter = new OwnerDto(1L, "firstName1", "lastName1", (short) 21, List.of(petAfter));
 
         Mockito.when(petService.createAll(ownerBefore.getPets())).thenReturn(Flux.fromIterable(ownerAfter.getPets()));
-        Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
+        Mockito.when(ownerService.create(ownerRequest)).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
 
-        StepVerifier.create(innkeeperServiceImpl.create(new OwnerDto(ownerBefore)))
+        StepVerifier.create(innkeeperServiceImpl.create(OwnerUtility.ownerDtoToOwnerDto(ownerBefore)))
                 .expectNextMatches(expOwnerDto -> ownerAfter.getId() == expOwnerDto.getId() &&
                         ownerAfter.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerAfter.getPets().size() == expOwnerDto.getPets().size() &&
@@ -244,7 +249,7 @@ public class InnkeeperServiceTest {
                 .verifyComplete();
 
         Mockito.verify(petService, times(1)).createAll(ownerBefore.getPets());
-        Mockito.verify(ownerService, times(1)).create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore));
+        Mockito.verify(ownerService, times(1)).create(ownerRequest);
     }
 
     @Test
@@ -255,7 +260,7 @@ public class InnkeeperServiceTest {
         Mockito.when(petService.createAll(ownerBefore.getPets())).thenReturn(Flux.fromIterable(ownerAfter.getPets()));
         Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
 
-        StepVerifier.create(innkeeperServiceImpl.create(new OwnerDto(ownerBefore)))
+        StepVerifier.create(innkeeperServiceImpl.create(OwnerUtility.ownerDtoToOwnerDto(ownerBefore)))
                 .expectNextMatches(expOwnerDto -> ownerAfter.getId() == expOwnerDto.getId() &&
                         ownerAfter.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         expOwnerDto.getPets().isEmpty()
@@ -274,14 +279,14 @@ public class InnkeeperServiceTest {
         Mockito.when(petService.createAll(ownerBefore.getPets())).thenReturn(Flux.empty());
         Mockito.when(ownerService.create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerAfter)));
 
-        StepVerifier.create(innkeeperServiceImpl.create(new OwnerDto(ownerBefore)))
+        StepVerifier.create(innkeeperServiceImpl.create(OwnerUtility.ownerDtoToOwnerDto(ownerBefore)))
                 .expectNextMatches(expOwnerDto -> ownerAfter.getId() == expOwnerDto.getId() &&
                         ownerAfter.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         expOwnerDto.getPets().isEmpty()
                 )
                 .verifyComplete();
 
-        Mockito.verify(petService, times(1)).createAll(ownerBefore.getPets());
+        Mockito.verify(petService, times(1)).createAll(null);
         Mockito.verify(ownerService, times(1)).create(OwnerUtility.ownerDtoToOwnerRequest(ownerBefore));
     }
 
@@ -337,9 +342,9 @@ public class InnkeeperServiceTest {
         OwnerDto owner = new OwnerDto(1L, "firstName1", "lastName1", (short) 21, null);
 
         Mockito.when(ownerService.getById(owner.getId())).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(owner)));
-        Mockito.when(petService.getByIds(null)).thenReturn(Flux.empty());
+        Mockito.when(petService.getByIds(anyList())).thenReturn(Flux.empty());
         Mockito.when(ownerService.deleteById(owner.getId())).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(owner)));
-        Mockito.when(petService.deleteByIds(null)).thenReturn(Flux.empty());
+        Mockito.when(petService.deleteByIds(anyList())).thenReturn(Flux.empty());
 
         StepVerifier.create(innkeeperServiceImpl.deleteById(owner.getId()))
                 .expectNextMatches(expOwnerDto -> owner.getId() == expOwnerDto.getId() &&
@@ -349,9 +354,9 @@ public class InnkeeperServiceTest {
                 .verifyComplete();
 
         Mockito.verify(ownerService, times(1)).getById(owner.getId());
-        Mockito.verify(petService, times(1)).getByIds(null);
+        Mockito.verify(petService, times(1)).getByIds(anyList());
         Mockito.verify(ownerService, times(1)).deleteById(owner.getId());
-        Mockito.verify(petService, times(1)).deleteByIds(null);
+        Mockito.verify(petService, times(1)).deleteByIds(anyList());
     }
 
     @Test
@@ -383,7 +388,7 @@ public class InnkeeperServiceTest {
         Mockito.when(ownerService.alter(OwnerUtility.ownerDtoToOwnerRequest(ownerNew))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerNew)));
         Mockito.when(petService.alterAll(ownerNew.getPets())).thenReturn(Flux.fromIterable(ownerNew.getPets()));
 
-        StepVerifier.create(innkeeperServiceImpl.alter(new OwnerDto(ownerNew)))
+        StepVerifier.create(innkeeperServiceImpl.alter(OwnerUtility.ownerDtoToOwnerDto(ownerNew)))
                 .expectNextMatches(expOwnerDto -> ownerNew.getId() == expOwnerDto.getId() &&
                         ownerNew.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerNew.getPets().size() == expOwnerDto.getPets().size() &&
@@ -411,7 +416,7 @@ public class InnkeeperServiceTest {
         Mockito.when(ownerService.alter(OwnerUtility.ownerDtoToOwnerRequest(ownerNew))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerNew)));
         Mockito.when(petService.alterAll(ownerNew.getPets())).thenReturn(Flux.fromIterable(ownerNew.getPets()));
 
-        StepVerifier.create(innkeeperServiceImpl.alter(new OwnerDto(ownerNew)))
+        StepVerifier.create(innkeeperServiceImpl.alter(OwnerUtility.ownerDtoToOwnerDto(ownerNew)))
                 .expectNextMatches(expOwnerDto -> ownerNew.getId() == expOwnerDto.getId() &&
                         ownerNew.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerNew.getPets().size() == expOwnerDto.getPets().size() &&
@@ -439,7 +444,7 @@ public class InnkeeperServiceTest {
         Mockito.when(ownerService.alter(OwnerUtility.ownerDtoToOwnerRequest(ownerNew))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerNew)));
         Mockito.when(petService.alterAll(ownerNew.getPets())).thenReturn(Flux.fromIterable(ownerNew.getPets()));
 
-        StepVerifier.create(innkeeperServiceImpl.alter(new OwnerDto(ownerNew)))
+        StepVerifier.create(innkeeperServiceImpl.alter(OwnerUtility.ownerDtoToOwnerDto(ownerNew)))
                 .expectNextMatches(expOwnerDto -> ownerNew.getId() == expOwnerDto.getId() &&
                         ownerNew.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerNew.getPets().size() == expOwnerDto.getPets().size() &&
@@ -464,7 +469,7 @@ public class InnkeeperServiceTest {
 
         Mockito.when(ownerService.getById(null)).thenReturn(Mono.empty());
 
-        StepVerifier.create(innkeeperServiceImpl.alter(new OwnerDto(ownerNew)))
+        StepVerifier.create(innkeeperServiceImpl.alter(OwnerUtility.ownerDtoToOwnerDto(ownerNew)))
                 .expectNextCount(0)
                 .verifyComplete();
 
@@ -486,7 +491,7 @@ public class InnkeeperServiceTest {
         Mockito.when(ownerService.alter(OwnerUtility.ownerDtoToOwnerRequest(ownerNew))).thenReturn(Mono.just(OwnerUtility.ownerDtoToOwner(ownerNew)));
         Mockito.when(petService.alterAll(ownerNew.getPets())).thenReturn(Flux.fromIterable(ownerNew.getPets()));
 
-        StepVerifier.create(innkeeperServiceImpl.alter(new OwnerDto(ownerNew)))
+        StepVerifier.create(innkeeperServiceImpl.alter(OwnerUtility.ownerDtoToOwnerDto(ownerNew)))
                 .expectNextMatches(expOwnerDto -> ownerNew.getId() == expOwnerDto.getId() &&
                         ownerNew.getFirstName().equalsIgnoreCase(expOwnerDto.getFirstName()) &&
                         ownerNew.getPets().size() == expOwnerDto.getPets().size() &&

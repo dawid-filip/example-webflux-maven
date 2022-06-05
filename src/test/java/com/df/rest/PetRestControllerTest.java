@@ -5,6 +5,7 @@ import com.df.entity.Pet;
 import com.df.repository.PetRepository;
 import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.PetServiceImpl;
+import com.df.util.PetUtility;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -42,7 +43,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
                 .uri(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ALLOW, HttpMethod.POST.name())
-                .body(Mono.just(new PetDto(petBefore)), PetDto.class)
+                .body(Mono.just(PetUtility.petToPetDto(petBefore)), PetDto.class)
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(PetDto.class)
@@ -318,7 +319,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
                 .header(HttpHeaders.ALLOW, HttpMethod.PATCH.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(new PetDto(petNew)), PetDto.class)
+                .body(Mono.just(PetUtility.petToPetDto(petNew)), PetDto.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(PetDto.class)
