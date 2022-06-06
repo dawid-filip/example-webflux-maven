@@ -28,12 +28,14 @@ public class PetUtility {
     public static Pet petDtoToPet(PetDto petDto) {
         Pet pet = new Pet();
         BeanUtils.copyProperties(petDto, pet);
+        pet.setId(petDto.getId());
         return pet;
     }
 
     public static PetDto petToPetDto(Pet pet) {
         PetDto petDto = new PetDto();
         BeanUtils.copyProperties(pet, petDto);
+        petDto.setId(pet.getId());
         return petDto;
     }
 
@@ -47,6 +49,14 @@ public class PetUtility {
         PetDto petDto = new PetDto();
         petDto.setId(petId);
         return petDto;
+    }
+
+
+    public static Pet preparePetFromPetAndPetDto(Pet petdb, PetDto petDto) {
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(petdb, pet);
+        BeanUtils.copyProperties(petDto, pet);
+        return pet;
     }
 
 }

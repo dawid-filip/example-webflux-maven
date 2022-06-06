@@ -1,6 +1,7 @@
 package com.df.entity;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -11,10 +12,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode
-@ToString
-public class Owner {
+@ToString(callSuper = true)
+public class Owner extends BasicAudit {
 
     @Id
     @Column("id")

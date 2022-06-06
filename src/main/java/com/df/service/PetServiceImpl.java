@@ -1,6 +1,7 @@
 package com.df.service;
 
 import com.df.dto.PetDto;
+import com.df.entity.Pet;
 import com.df.repository.PetRepository;
 import com.df.util.PetUtility;
 import lombok.AllArgsConstructor;
@@ -24,13 +25,8 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public Mono<PetDto> getById(Long id) {
-        return Mono.justOrEmpty(id)
-                .switchIfEmpty(Mono.empty())
-                .flatMap(petId ->
-                        petRepository.findById(petId)
-                                .map(PetUtility::petToPetDto)
-                                .switchIfEmpty(Mono.empty())
-                );
+        return getRowPetById(id)
+                .map(PetUtility::petToPetDto);
     }
 
     @Override
@@ -116,14 +112,15 @@ public class PetServiceImpl implements PetService {
     @Transactional
     public Mono<PetDto> alter(PetDto petDto) {
         return Mono.justOrEmpty(petDto)
-                .switchIfEmpty(Mono.empty())
-                .flatMap(pet -> getById(pet.getId()))
+                .flatMap(validPetDto ->
+                        getRowPetById(validPetDto.getId()))
                 .flatMap(petdb ->
-                        petRepository.save(PetUtility.petDtoToPet(petDto))
-                                .flatMap(pet -> Mono.just(PetUtility.petToPetDto(pet)))
-                                .doOnSuccess(p -> log.info("Altered " + petDto + "."))
-                                .doOnError(e -> log.error("Failed to alter " + petDto + ".", e))
-                );
+                        petRepository.save(PetUtility.preparePetFromPetAndPetDto(petdb, petDto))
+                                        .flatMap(pet -> Mono.just(PetUtility.petToPetDto(pet)))
+                                        .doOnSuccess(p -> log.info("Altered " + petDto + "."))
+                                        .doOnError(e -> log.error("Failed to alter " + petDto + ".", e))
+                )
+                .map(p -> p);
     }
 
     @Override
@@ -145,6 +142,15 @@ public class PetServiceImpl implements PetService {
                                 .map(p -> p)
                 )
                 .map(p -> p);
+    }
+
+    private Mono<Pet> getRowPetById(Long id) {
+        return Mono.justOrEmpty(id)
+                .switchIfEmpty(Mono.empty())
+                .flatMap(petId ->
+                        petRepository.findById(petId)
+                                .switchIfEmpty(Mono.empty())
+                );
     }
 
     private Flux<List<PetDto>> validatePetDtos(List<PetDto> petDto, boolean validatePetIds) {
