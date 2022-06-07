@@ -4,6 +4,7 @@ import com.df.entity.Owner;
 import com.df.entity.Pet;
 import com.df.repository.OwnerRepository;
 import com.df.repository.PetRepository;
+import com.df.service.OwnerDtoService;
 import com.df.service.PetService;
 import com.df.util.PetUtility;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class TestDataStartUp {
     final private PetRepository petRepository;
     final private OwnerRepository ownerRepository;
     final private PetService petService;
+    final private OwnerDtoService ownerDtoService;
 
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
@@ -33,8 +35,21 @@ public class TestDataStartUp {
         printAlter("Y", (short)88);
         printAllPets();
 
+        printGetAllFromOwnerDtoService();
 //        petStartUp();
 //        ownerStartUp();
+    }
+
+    private void printGetAllFromOwnerDtoService() {
+        ownerDtoService.getAll()
+                .collectList()
+                .map(pets ->
+                        pets.stream()
+                                .map(p -> p.toString())
+                                .collect(Collectors.joining("\n", "{\n", "}"))
+                )
+                .log()
+                .subscribe();
     }
 
     private void petStartUp() {
@@ -53,6 +68,7 @@ public class TestDataStartUp {
                 })
                 .subscribe();
     }
+
     private void printAlter(String suffix, Short numbers) {
         petRepository.findById(1L)
                 .flatMap(pet -> {
@@ -68,7 +84,8 @@ public class TestDataStartUp {
     private void printAllPets() {
         petRepository.findAll().collectList()
                 .map(pets ->
-                        pets.stream().map(p -> p.toString())
+                        pets.stream()
+                                .map(p -> p.toString())
                                 .collect(Collectors.joining("\n", "{\n", "}"))
                 )
                 .log().subscribe();
