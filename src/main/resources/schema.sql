@@ -25,3 +25,11 @@ CREATE TABLE IF NOT EXISTS owner (
    version LONG,
    PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS audit_entity (
+   id LONG AUTO_INCREMENT NOT NULL,
+   entity_value CHARACTER VARYING(5000) NOT NULL,
+   entity_class CHARACTER VARYING(100) NOT NULL,
+   audited_on TIMESTAMP,
+   PRIMARY KEY (id)
+);
