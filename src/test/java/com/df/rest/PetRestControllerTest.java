@@ -268,7 +268,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
         Pet pet = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
 
         Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
-        Mockito.when(petRepository.deleteById(pet.getId())).thenReturn(Mono.empty().then());
+        Mockito.when(petRepository.delete(pet)).thenReturn(Mono.empty().then());
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", pet.getId())
@@ -282,7 +282,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
                 });
 
         verify(petRepository, times(1)).findById(pet.getId());
-        verify(petRepository, times(1)).deleteById(pet.getId());
+        verify(petRepository, times(1)).delete(pet);
     }
 
     @Test

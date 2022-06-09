@@ -1,16 +1,17 @@
 package com.df.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode(exclude = "pets")
-@ToString
-public class OwnerDto {
+@ToString//(callSuper = true)
+public class OwnerDto extends BasicAuditDto {
 
     private Long id;
     private String firstName;

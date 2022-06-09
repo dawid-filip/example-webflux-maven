@@ -156,7 +156,7 @@ public class OwnerServiceTest {
         Owner owner = new Owner(1L, "firstName1", "lastName1", (short) 21, List.of(1L));
 
         Mockito.when(ownerRepository.findById(owner.getId())).thenReturn(Mono.just(owner));
-        Mockito.when(ownerRepository.deleteById(owner.getId())).thenReturn(Mono.empty().then());
+        Mockito.when(ownerRepository.delete(owner)).thenReturn(Mono.empty().then());
 
         StepVerifier.create(ownerServiceImpl.deleteById(owner.getId()))
                 .expectNextMatches(expOwner -> owner.getId() == expOwner.getId() &&
@@ -165,7 +165,7 @@ public class OwnerServiceTest {
                 .verifyComplete();
 
         Mockito.verify(ownerRepository, times(1)).findById(owner.getId());
-        Mockito.verify(ownerRepository, times(1)).deleteById(owner.getId());
+        Mockito.verify(ownerRepository, times(1)).delete(owner);
     }
 
     @Test

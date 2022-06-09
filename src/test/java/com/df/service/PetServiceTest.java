@@ -229,14 +229,14 @@ public class PetServiceTest {
         Pet pet = new Pet(1L, "petName1", (short) 2, (short) 3, (short) 11);
 
         Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
-        Mockito.when(petRepository.deleteById(pet.getId())).thenReturn(Mono.empty().then());
+        Mockito.when(petRepository.delete(pet)).thenReturn(Mono.empty().then());
 
         StepVerifier.create(petServiceImpl.deleteById(pet.getId()))
                 .expectNextMatches(petDto -> petDto.getId() == petDto.getId())
                 .verifyComplete();
 
         Mockito.verify(petRepository, times(1)).findById(pet.getId());
-        Mockito.verify(petRepository, times(1)).deleteById(pet.getId());
+        Mockito.verify(petRepository, times(1)).delete(pet);
     }
 
     @Test
@@ -259,14 +259,14 @@ public class PetServiceTest {
         List<Long> petIds = List.of(pets.get(0).getId());
 
         Mockito.when(petRepository.findAllById(petIds)).thenReturn(Flux.fromIterable(pets));
-        Mockito.when(petRepository.deleteAllById(petIds)).thenReturn(Flux.empty().then());
+        Mockito.when(petRepository.deleteAll(pets)).thenReturn(Flux.empty().then());
 
         StepVerifier.create(petServiceImpl.deleteByIds(petIds))
                 .expectNextMatches(petDto -> pets.get(0).getId() == petDto.getId() && pets.get(0).getName().equalsIgnoreCase(petDto.getName()))
                 .verifyComplete();
 
         Mockito.verify(petRepository, times(1)).findAllById(petIds);
-        Mockito.verify(petRepository, times(1)).deleteAllById(petIds);
+        Mockito.verify(petRepository, times(1)).deleteAll(pets);
     }
 
     @Test
@@ -276,7 +276,7 @@ public class PetServiceTest {
         List<Long> petIds = pets.stream().map(Pet::getId).collect(Collectors.toList());
 
         Mockito.when(petRepository.findAllById(petIds)).thenReturn(Flux.fromIterable(pets));
-        Mockito.when(petRepository.deleteAllById(petIds)).thenReturn(Flux.empty().then());
+        Mockito.when(petRepository.deleteAll(pets)).thenReturn(Flux.empty().then());
 
         StepVerifier.create(petServiceImpl.deleteByIds(petIds))
                 .expectNextMatches(petDto -> pets.get(0).getId() == petDto.getId() && pets.get(0).getName().equalsIgnoreCase(petDto.getName()))
@@ -284,7 +284,7 @@ public class PetServiceTest {
                 .verifyComplete();
 
         Mockito.verify(petRepository, times(1)).findAllById(petIds);
-        Mockito.verify(petRepository, times(1)).deleteAllById(petIds);
+        Mockito.verify(petRepository, times(1)).deleteAll(pets);
     }
 
     @Test

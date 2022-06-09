@@ -17,4 +17,13 @@ public interface OwnerRepository extends ReactiveCrudRepository<Owner, Long> {
     @Audit
     @Override
     <S extends Owner> Flux<S> saveAll(Iterable<S> entities);
+
+    @Audit
+    @Override
+    Mono<Void> delete(Owner entity);
+
+    @Audit
+    @Override
+    Mono<Void> deleteAll(Iterable<? extends Owner> entities);
+
 }

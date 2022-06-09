@@ -54,7 +54,7 @@ public class OwnerServiceImpl implements OwnerService {
     public Mono<Owner> deleteById(Long id) {
         return getById(id)
                 .flatMap(owner ->
-                        ownerRepository.deleteById(id)
+                        ownerRepository.delete(owner)
                                 .doOnSuccess(o -> log.info("Deleted " + owner + "."))
                                 .doOnError(e -> log.info("Failed to delete " + owner + ".", e))
                                 .then(Mono.just(owner))

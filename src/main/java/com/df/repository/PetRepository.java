@@ -17,4 +17,12 @@ public interface PetRepository extends ReactiveCrudRepository<Pet, Long> {
     @Audit
     @Override
     <S extends Pet> Flux<S> saveAll(Iterable<S> entities);
+
+    @Audit
+    @Override
+    Mono<Void> delete(Pet entity);
+
+    @Audit
+    @Override
+    Mono<Void> deleteAll(Iterable<? extends Pet> entities);
 }

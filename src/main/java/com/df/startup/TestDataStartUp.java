@@ -30,10 +30,10 @@ public class TestDataStartUp {
 
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
-        printAllPets();
-        printAlterService("X", (short)99);
-        printAlter("Y", (short)88);
-        printAllPets();
+//        printAllPets();
+//        printAlterService("X", (short)99);
+//        printAlter("Y", (short)88);
+//        printAllPets();
 
         printGetAllFromOwnerDtoService();
 //        petStartUp();
@@ -44,7 +44,7 @@ public class TestDataStartUp {
         ownerDtoService.getAll()
                 .collectList()
                 .map(pets ->
-                        pets.stream()
+                        "getAllFromOwnerDtoService() -> " + pets.stream()
                                 .map(p -> p.toString())
                                 .collect(Collectors.joining("\n", "{\n", "}"))
                 )
@@ -53,7 +53,7 @@ public class TestDataStartUp {
     }
 
     private void petStartUp() {
-        Flux.range(1, 6).doOnNext(i -> savePet(i)).subscribe();
+        Flux.range(1, 6).doOnNext(i -> saveNewPet(i)).subscribe();
     }
 
     private void printAlterService(String suffix, Short numbers) {
@@ -81,23 +81,42 @@ public class TestDataStartUp {
                 .subscribe();
     }
 
+    private void printAlterWithGetById(String suffix, Short numbers) {
+        petRepository.findById(1L)
+                .flatMap(pet -> {
+                    log.info("Before ALTER -> " + pet);
+                    pet.setName("petName " + suffix);
+                    pet.setAge(numbers);
+                    pet.setWeight(numbers);
+                    pet.setLength(numbers);
+                    return petRepository.save(pet)
+                            .doOnError(e -> log.info("Failed to alter pet id=" + pet.getId() + " version=" + pet.getVersion() + ", age=" + pet.getAge()))
+                            .map(alteredPet -> {
+                                log.info(" After ALTER -> " + alteredPet);
+                                return alteredPet;
+                            });
+                })
+                .subscribe();
+    }
+
     private void printAllPets() {
         petRepository.findAll().collectList()
                 .map(pets ->
-                        pets.stream()
+                        "allPets() -> " + pets.stream()
                                 .map(p -> p.toString())
                                 .collect(Collectors.joining("\n", "{\n", "}"))
                 )
-                .log().subscribe();
+                .log()
+                .subscribe();
     }
 
-    private void savePet(int petId) {
-        petRepository.save(createPet("petName " + petId, petId, petId + 2, petId + 3))
+    private void saveNewPet(int petId) {
+        petRepository.save(createPet(null,"petName " + petId, petId, petId + 2, petId + 3))
                 .doOnNext(p -> log.info("PetRepo " + p + " saved."))
                 .subscribe();
     }
 
-    private Pet createPet(String petName, int age, int weight, int length) {
+    private Pet createPet(Long id, String petName, int age, int weight, int length) {
         return new Pet(null, petName, (short) age, (short) weight, (short) length);
     }
 

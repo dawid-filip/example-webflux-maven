@@ -1,14 +1,15 @@
 package com.df.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @EqualsAndHashCode
-@ToString
-public class PetDto {
+@ToString//(callSuper = true)
+public class PetDto extends BasicAuditDto {
 
     private Long id;
     private String name;

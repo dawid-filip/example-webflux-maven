@@ -80,12 +80,12 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional
     public Mono<PetDto> deleteById(Long id) {
-        return getById(id)
-                .flatMap(petDto ->
-                        petRepository.deleteById(id)
-                                .doOnSuccess(p -> log.info("Deleted " + petDto + "."))
-                                .doOnError(e -> log.info("Failed to delete " + petDto + ".", e))
-                                .then(Mono.just(petDto))
+        return getRowPetById(id)
+                .flatMap(pet ->
+                        petRepository.delete(pet)
+                                .doOnSuccess(p -> log.info("Deleted " + pet + "."))
+                                .doOnError(e -> log.info("Failed to delete " + pet + ".", e))
+                                .then(Mono.just(PetUtility.petToPetDto(pet)))
                 );
     }
 
@@ -96,10 +96,8 @@ public class PetServiceImpl implements PetService {
                 .collectList()
                 .filter(petDtos -> !petDtos.isEmpty())
                 .flatMap(petDtos -> {
-                    List<Long> petIds = petDtos.stream()
-                            .map(PetDto::getId)
-                            .collect(Collectors.toList());
-                    return petRepository.deleteAllById(petIds) // ids
+                    List<Pet> pets = PetUtility.petDtosToPets(petDtos);
+                    return petRepository.deleteAll(pets) // ids
                             .doOnSuccess(p -> petDtos.forEach(petDto -> log.info("Deleted " + petDto + ".")))
                             .doOnError(e -> log.info("Failed to delete " + petDtos + ".", e))
                             .then(Mono.just(petDtos));

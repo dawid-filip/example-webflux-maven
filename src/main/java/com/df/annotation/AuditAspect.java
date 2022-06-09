@@ -1,8 +1,6 @@
 package com.df.annotation;
 
-import com.df.entity.Audit;
-import com.df.entity.Owner;
-import com.df.entity.Pet;
+import com.df.entity.BasicAudit;
 import com.df.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,6 +11,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class AuditAspect {
 
     private final AuditService auditService;
 
-    @Around("@annotation(com.df.annotation.Audit)")
+    @Around(value = "@annotation(com.df.annotation.Audit)")
     public Object doAround(ProceedingJoinPoint joinPoint) {
         Object monoOrFlux;
 
@@ -31,12 +33,19 @@ public class AuditAspect {
             throw new RuntimeException(throwable);
         }
 
+        Object[] methodArgs = Optional.of(joinPoint.getArgs()).orElse(List.of().toArray());
+        List<BasicAudit> basicAuditsArgs = checkIfEntities(methodArgs);
+
+        if (basicAuditsArgs.isEmpty()) return monoOrFlux;
+
         if (monoOrFlux instanceof Mono) {
-            Mono<?> mono = (Mono<?>) monoOrFlux;
-            return doWhenMono(mono);
+            Mono<BasicAudit> mono = (Mono<BasicAudit>) monoOrFlux;
+            doWhenMono(mono, basicAuditsArgs)
+                    .subscribe();
+            return mono;
         } else if (monoOrFlux instanceof Flux) {
-            Flux<?> flux = (Flux<?>) monoOrFlux;
-            doWhenFlux(Flux.from(flux))
+            Flux<BasicAudit> flux = (Flux<BasicAudit>) monoOrFlux;
+            doWhenFlux(flux, basicAuditsArgs)
                     .subscribe();
             return flux;
         }
@@ -44,29 +53,48 @@ public class AuditAspect {
         return monoOrFlux;
     }
 
-    private Flux<?> doWhenFlux(Flux<?> flux) {
-        return flux.flatMap(entity ->
-                        doWhenMono(Mono.just(entity)))
+    private Flux<BasicAudit> doWhenFlux(Flux<BasicAudit> flux, List<BasicAudit> basicAuditsArgs) {
+        return flux.collectList()
+                .doOnSuccess(basic ->
+                    delegateAuditCreation(basicAuditsArgs)
+                )
+                .flatMapMany(Flux::fromIterable)
                 .map(p -> p);
     }
 
-    private Mono<?> doWhenMono(Mono<?> mono) {
-        return mono.doOnSuccess(entity -> {
-            dispatcherEntity(entity);
-        });
+    private Mono<BasicAudit> doWhenMono(Mono<BasicAudit> mono, List<BasicAudit> basicAuditsArgs) {
+        return mono.doOnSuccess(basic ->
+            delegateAuditCreation(basicAuditsArgs)
+        );
     }
 
-    private void dispatcherEntity(Object entity) {
-        if (entity instanceof Pet) {
-            auditService.create(entity)
+    private void delegateAuditCreation(List<BasicAudit> basicAuditsArgs) {
+        if (basicAuditsArgs.size() == 1) {
+            auditService.create(basicAuditsArgs.get(0))
                     .subscribe();
-        } else if (entity instanceof Owner) {
-            auditService.create(entity)
+        } else if (basicAuditsArgs.size() > 1) {
+            auditService.createAll(basicAuditsArgs)
                     .subscribe();
-        } else if (entity instanceof Audit) {
-            log.warn("Entity cannot be type of Audit!");
-            return;
+        } else {
+            //
         }
+    }
+
+    private List<BasicAudit> checkIfEntities(Object[] methodArgs) {
+        List<BasicAudit> basicAudits = new ArrayList<>();
+
+        if (methodArgs != null && methodArgs[0] instanceof BasicAudit) {
+
+            BasicAudit basicAuditEntity = (BasicAudit) methodArgs[0];
+            basicAudits.add(basicAuditEntity);
+
+        } else if (methodArgs != null && methodArgs[0] instanceof List<?>) {
+            List<BasicAudit> basicAuditEntities = (List<BasicAudit>) methodArgs[0];
+            basicAudits.addAll(basicAuditEntities);
+
+        }
+
+        return basicAudits;
     }
 
 }

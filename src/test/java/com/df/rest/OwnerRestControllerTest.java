@@ -156,7 +156,7 @@ public class OwnerRestControllerTest extends BasicControllerTestConfig {
         Owner owner = new Owner(1L, "firstName1", "lastName1", (short)21, List.of(1L, 2L));
 
         Mockito.when(ownerRepository.findById(owner.getId())).thenReturn(Mono.just(owner));
-        Mockito.when(ownerRepository.deleteById(owner.getId())).thenReturn(Mono.empty().then());
+        Mockito.when(ownerRepository.delete(owner)).thenReturn(Mono.empty().then());
 
         webClient.delete()
                 .uri(BASE_URL + "/{id}", owner.getId())
@@ -170,7 +170,7 @@ public class OwnerRestControllerTest extends BasicControllerTestConfig {
                 });
 
         verify(ownerRepository, times(1)).findById(owner.getId());
-        verify(ownerRepository, times(1)).deleteById(owner.getId());
+        verify(ownerRepository, times(1)).delete(owner);
     }
 
     @Test
