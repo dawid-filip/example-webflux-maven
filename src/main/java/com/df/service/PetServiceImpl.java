@@ -113,10 +113,10 @@ public class PetServiceImpl implements PetService {
                 .flatMap(validPetDto ->
                         getRowPetById(validPetDto.getId()))
                 .flatMap(petdb ->
-                        petRepository.save(PetUtility.preparePetFromPetAndPetDto(petdb, petDto))
-                                        .flatMap(pet -> Mono.just(PetUtility.petToPetDto(pet)))
-                                        .doOnSuccess(p -> log.info("Altered " + petDto + "."))
-                                        .doOnError(e -> log.error("Failed to alter " + petDto + ".", e))
+                    petRepository.save(PetUtility.preparePetFromPetAndPetDto(petdb, petDto))
+                            .flatMap(pet -> Mono.just(PetUtility.petToPetDto(petdb)))
+                            .doOnSuccess(p -> log.info("Altered " + petDto + "."))
+                            .doOnError(e -> log.error("Failed to alter " + petDto + ".", e))
                 )
                 .map(p -> p);
     }

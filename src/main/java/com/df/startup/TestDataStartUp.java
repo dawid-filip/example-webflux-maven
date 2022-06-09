@@ -2,11 +2,11 @@ package com.df.startup;
 
 import com.df.entity.Owner;
 import com.df.entity.Pet;
+import com.df.repository.AuditRepository;
 import com.df.repository.OwnerRepository;
 import com.df.repository.PetRepository;
 import com.df.service.OwnerDtoService;
 import com.df.service.PetService;
-import com.df.util.PetUtility;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,17 +27,18 @@ public class TestDataStartUp {
     final private OwnerRepository ownerRepository;
     final private PetService petService;
     final private OwnerDtoService ownerDtoService;
+    final private AuditRepository auditRepository;
 
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
-//        printAllPets();
-//        printAlterService("X", (short)99);
+        printAllPets();
+
 //        printAlter("Y", (short)88);
 //        printAllPets();
 
-        printGetAllFromOwnerDtoService();
 //        petStartUp();
 //        ownerStartUp();
+//        printGetAllFromOwnerDtoService();
     }
 
     private void printGetAllFromOwnerDtoService() {
@@ -54,19 +55,6 @@ public class TestDataStartUp {
 
     private void petStartUp() {
         Flux.range(1, 6).doOnNext(i -> saveNewPet(i)).subscribe();
-    }
-
-    private void printAlterService(String suffix, Short numbers) {
-        petService.getById(1L)
-                .flatMap(petDto -> {
-                    petDto.setId(1L);
-                    petDto.setName("petName " + suffix);
-                    petDto.setAge(numbers);
-                    petDto.setWeight(numbers);
-                    petDto.setLength(numbers);
-                    return petService.alter(PetUtility.petDtoToPetDto(petDto));
-                })
-                .subscribe();
     }
 
     private void printAlter(String suffix, Short numbers) {
@@ -111,13 +99,13 @@ public class TestDataStartUp {
     }
 
     private void saveNewPet(int petId) {
-        petRepository.save(createPet(null,"petName " + petId, petId, petId + 2, petId + 3))
+        petRepository.save(createPet(null, "petName " + petId, petId, petId + 2, petId + 3))
                 .doOnNext(p -> log.info("PetRepo " + p + " saved."))
                 .subscribe();
     }
 
     private Pet createPet(Long id, String petName, int age, int weight, int length) {
-        return new Pet(null, petName, (short) age, (short) weight, (short) length);
+        return new Pet(id, petName, (short) age, (short) weight, (short) length);
     }
 
     private void ownerStartUp() {

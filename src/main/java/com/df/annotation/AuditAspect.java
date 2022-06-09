@@ -34,64 +34,57 @@ public class AuditAspect {
         }
 
         Object[] methodArgs = Optional.of(joinPoint.getArgs()).orElse(List.of().toArray());
-        List<BasicAudit> basicAuditsArgs = checkIfEntities(methodArgs);
+        List<BasicAudit> basicAuditsArgs = extractEntitiesIfAny(methodArgs);
 
         if (basicAuditsArgs.isEmpty()) return monoOrFlux;
 
-        if (monoOrFlux instanceof Mono) {
-            Mono<BasicAudit> mono = (Mono<BasicAudit>) monoOrFlux;
-            doWhenMono(mono, basicAuditsArgs)
-                    .subscribe();
-            return mono;
-        } else if (monoOrFlux instanceof Flux) {
-            Flux<BasicAudit> flux = (Flux<BasicAudit>) monoOrFlux;
-            doWhenFlux(flux, basicAuditsArgs)
-                    .subscribe();
-            return flux;
+        if (monoOrFlux instanceof Mono<?>) {
+            Mono<?> mono = (Mono<?>) monoOrFlux;
+            return doOnMono(mono, basicAuditsArgs);
+        } else if (monoOrFlux instanceof Flux<?>) {
+            Flux<?> flux = (Flux<?>) monoOrFlux;
+            return doOnFlux(flux, basicAuditsArgs);
         }
 
         return monoOrFlux;
     }
 
-    private Flux<BasicAudit> doWhenFlux(Flux<BasicAudit> flux, List<BasicAudit> basicAuditsArgs) {
-        return flux.collectList()
-                .doOnSuccess(basic ->
-                    delegateAuditCreation(basicAuditsArgs)
-                )
-                .flatMapMany(Flux::fromIterable)
-                .map(p -> p);
+    private Mono<?> doOnMono(Mono<?> mono, List<BasicAudit> basicAuditsArgs) {
+        Mono.fromCallable(() -> delegateAuditCreation(basicAuditsArgs))
+                .subscribe();
+        return mono;
     }
 
-    private Mono<BasicAudit> doWhenMono(Mono<BasicAudit> mono, List<BasicAudit> basicAuditsArgs) {
-        return mono.doOnSuccess(basic ->
-            delegateAuditCreation(basicAuditsArgs)
-        );
+    private Flux<?> doOnFlux(Flux<?> flux, List<BasicAudit> basicAuditsArgs) {
+        Mono.fromCallable(() -> delegateAuditCreation(basicAuditsArgs))
+                .subscribe();
+        return flux;
     }
 
-    private void delegateAuditCreation(List<BasicAudit> basicAuditsArgs) {
+    private List<BasicAudit> delegateAuditCreation(List<BasicAudit> basicAuditsArgs) {
         if (basicAuditsArgs.size() == 1) {
             auditService.create(basicAuditsArgs.get(0))
-                    .subscribe();
+                .subscribe();
         } else if (basicAuditsArgs.size() > 1) {
             auditService.createAll(basicAuditsArgs)
-                    .subscribe();
+                .subscribe();
         } else {
-            //
+            log.warn("Audit object entity is empty. Nothing to do..");
         }
+
+        return basicAuditsArgs;
     }
 
-    private List<BasicAudit> checkIfEntities(Object[] methodArgs) {
+    private List<BasicAudit> extractEntitiesIfAny(Object[] methodArgs) {
         List<BasicAudit> basicAudits = new ArrayList<>();
 
         if (methodArgs != null && methodArgs[0] instanceof BasicAudit) {
-
             BasicAudit basicAuditEntity = (BasicAudit) methodArgs[0];
             basicAudits.add(basicAuditEntity);
 
         } else if (methodArgs != null && methodArgs[0] instanceof List<?>) {
             List<BasicAudit> basicAuditEntities = (List<BasicAudit>) methodArgs[0];
             basicAudits.addAll(basicAuditEntities);
-
         }
 
         return basicAudits;
