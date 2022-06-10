@@ -45,7 +45,7 @@ public class AuditServiceTest {
         StepVerifier.create(auditServiceImpl.create(entity))
                 .expectNextMatches(auditResult ->
                         auditResult.getEntityValue().equalsIgnoreCase(entity.toString()) &&
-                                auditResult.getClass().getName().equalsIgnoreCase(audit.getClass().getName()) &&
+                                auditResult.getEntityClass().equalsIgnoreCase(entity.getClass().getName()) &&
                                 Objects.nonNull(auditResult.getAuditedOn())
                 )
                 .verifyComplete();
@@ -64,7 +64,7 @@ public class AuditServiceTest {
         StepVerifier.create(auditServiceImpl.createAll(List.of(entity)))
                 .expectNextMatches(auditResult ->
                         auditResult.getEntityValue().equalsIgnoreCase(entity.toString()) &&
-                                auditResult.getClass().getName().equalsIgnoreCase(audit.getClass().getName()) &&
+                                auditResult.getEntityClass().equalsIgnoreCase(entity.getClass().getName()) &&
                                 Objects.nonNull(auditResult.getAuditedOn())
                 )
                 .verifyComplete();
@@ -87,12 +87,12 @@ public class AuditServiceTest {
         StepVerifier.create(auditServiceImpl.createAll(List.of(entity1, entity2)))
                 .expectNextMatches(auditResult ->
                         auditResult.getEntityValue().equalsIgnoreCase(entity1.toString()) &&
-                                auditResult.getClass().getName().equalsIgnoreCase(audit1.getClass().getName()) &&
+                                auditResult.getEntityClass().equalsIgnoreCase(entity1.getClass().getName()) &&
                                 Objects.nonNull(auditResult.getAuditedOn())
                 )
                 .expectNextMatches(auditResult ->
                         auditResult.getEntityValue().equalsIgnoreCase(entity2.toString()) &&
-                                auditResult.getClass().getName().equalsIgnoreCase(audit2.getClass().getName()) &&
+                                auditResult.getEntityClass().equalsIgnoreCase(entity2.getClass().getName()) &&
                                 Objects.nonNull(auditResult.getAuditedOn())
                 )
                 .verifyComplete();
