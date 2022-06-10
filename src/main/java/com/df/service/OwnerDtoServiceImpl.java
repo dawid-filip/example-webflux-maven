@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +56,7 @@ public class OwnerDtoServiceImpl implements OwnerDtoService {
         return ownerDtos.stream()
                 .filter(ownerDto -> ownerDto.getId() == ownerId)
                 .map(OwnerDto::getPets)
+                .filter(petDtos -> Objects.nonNull(petDtos))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
