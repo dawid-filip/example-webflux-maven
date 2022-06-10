@@ -4,7 +4,6 @@ import com.df.entity.Audit;
 import com.df.entity.BasicAudit;
 import com.df.entity.Pet;
 import com.df.repository.AuditRepository;
-import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,7 +24,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
-@Log4j2
 public class AuditServiceTest {
 
     @InjectMocks
