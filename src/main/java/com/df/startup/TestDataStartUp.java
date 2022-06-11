@@ -34,17 +34,29 @@ public class TestDataStartUp {
 
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
-//        printAllPets();
+        printAllPets();
 
 //        printAlter("Y", (short)88);
 //        printAllPets();
 
 //        petStartUp();
 //        ownerStartUp();
+
         printGetAllFromOwnerDtoService();
-
-
         printAllOwnerDtoCustomRepository();
+        printTransactionalAllPetDtos();
+    }
+
+    private void printTransactionalAllPetDtos() {
+        ownerDtoCustomRepository.getTransactionalAllPetDtos()
+                .collectList()
+                .map(pets ->
+                        "printTransactionalAllPetDtos() -> " + pets.stream()
+                                .map(p -> p.toString())
+                                .collect(Collectors.joining("\n", "{\n", "}"))
+                )
+                .log()
+                .subscribe();
     }
 
     private void printAllOwnerDtoCustomRepository() {

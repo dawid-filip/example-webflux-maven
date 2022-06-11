@@ -1,11 +1,15 @@
 package com.df.util;
 
+import com.df.columns.PetColumns;
 import com.df.dto.PetDto;
 import com.df.entity.Pet;
+import io.r2dbc.spi.Row;
 import org.springframework.beans.BeanUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -71,5 +75,36 @@ public class PetUtility {
         }
         return petDto;
     }
+
+    public static PetDto rowToPetDto(Map<String, Object> row) {
+        return PetDto.builder()
+                .id((Long) row.get(PetColumns.ID.toString()))
+                .name((String) row.get(PetColumns.NAME.toString()))
+                .age((Short) row.get(PetColumns.AGE.toString()))
+                .weight((Short) row.get(PetColumns.WEIGHT.toString()))
+                .length((Short) row.get(PetColumns.LENGTH.toString()))
+                .createdAt((LocalDateTime) row.get((PetColumns.CREATED_AT.toString())))
+                .createdBy((String) row.get((PetColumns.CREATED_BY.toString())))
+                .updatedAt((LocalDateTime) row.get((PetColumns.UPDATED_AT.toString())))
+                .updatedBy((String) row.get((PetColumns.UPDATED_BY.toString())))
+                .version((Long) row.get((PetColumns.VERSION.toString())))
+                .build();
+    }
+
+    public static PetDto rowToPetDto(Row source) {
+        return PetDto.builder()
+                .id(source.get(PetColumns.ID.toString(), Long.class))
+                .name(source.get(PetColumns.NAME.toString(), String.class))
+                .age(source.get(PetColumns.AGE.toString(), Short.class))
+                .weight(source.get(PetColumns.WEIGHT.toString(), Short.class))
+                .length(source.get(PetColumns.LENGTH.toString(), Short.class))
+                .createdAt(source.get(PetColumns.CREATED_AT.toString(), LocalDateTime.class))
+                .createdBy(source.get(PetColumns.CREATED_BY.toString(), String.class))
+                .updatedAt(source.get(PetColumns.UPDATED_AT.toString(), LocalDateTime.class))
+                .updatedBy(source.get(PetColumns.UPDATED_BY.toString(), String.class))
+                .version(source.get(PetColumns.VERSION.toString(), Long.class))
+                .build();
+    }
+
 
 }

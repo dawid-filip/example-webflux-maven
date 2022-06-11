@@ -16,18 +16,7 @@ public class OwnerDtoReadConverter implements Converter<Row, OwnerDto> {
     @Override
     public OwnerDto convert(Row source) {
 
-        PetDto petDto = PetDto.builder()
-                .id(source.get("pet_id", Long.class))
-                .name(source.get("pet_name", String.class))
-                .age(source.get("pet_age", Short.class))
-                .weight(source.get("pet_weight", Short.class))
-                .length(source.get("pet_length", Short.class))
-                .createdAt(source.get("pet_created_at", LocalDateTime.class))
-                .createdBy(source.get("pet_created_by", String.class))
-                .updatedAt(source.get("pet_updated_at", LocalDateTime.class))
-                .updatedBy(source.get("pet_updated_by", String.class))
-                .version(source.get("pet_version", Long.class))
-                .build();
+        PetDto petDto = PetUtility.rowToPetDto(source);
         petDto = PetUtility.getNullWhenAllPetDtoFieldsNull(petDto);
         List<PetDto> petDtos = petDto!=null ? List.of(petDto) : List.of();
 
