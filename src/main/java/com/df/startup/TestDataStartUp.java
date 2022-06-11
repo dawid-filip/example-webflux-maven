@@ -3,11 +3,12 @@ package com.df.startup;
 import com.df.entity.Owner;
 import com.df.entity.Pet;
 import com.df.repository.AuditRepository;
+import com.df.repository.OwnerDtoCustomRepository;
 import com.df.repository.OwnerRepository;
 import com.df.repository.PetRepository;
 import com.df.service.OwnerDtoService;
 import com.df.service.PetService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Log4j2
 public class TestDataStartUp {
 
@@ -29,16 +30,33 @@ public class TestDataStartUp {
     final private OwnerDtoService ownerDtoService;
     final private AuditRepository auditRepository;
 
+    final private OwnerDtoCustomRepository ownerDtoCustomRepository;
+
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
-        printAllPets();
+//        printAllPets();
 
 //        printAlter("Y", (short)88);
 //        printAllPets();
 
 //        petStartUp();
 //        ownerStartUp();
-//        printGetAllFromOwnerDtoService();
+        printGetAllFromOwnerDtoService();
+
+
+        printAllOwnerDtoCustomRepository();
+    }
+
+    private void printAllOwnerDtoCustomRepository() {
+        ownerDtoCustomRepository.getAll()
+                .collectList()
+                .map(pets ->
+                        "printAllOwnerDtoCustomRepository() -> " + pets.stream()
+                                .map(p -> p.toString())
+                                .collect(Collectors.joining("\n", "{\n", "}"))
+                )
+                .log()
+                .subscribe();
     }
 
     private void printGetAllFromOwnerDtoService() {

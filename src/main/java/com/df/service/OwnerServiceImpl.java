@@ -4,7 +4,7 @@ import com.df.entity.Owner;
 import com.df.repository.OwnerRepository;
 import com.df.request.OwnerRequest;
 import com.df.util.OwnerUtility;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Log4j2
 public class OwnerServiceImpl implements OwnerService {
 

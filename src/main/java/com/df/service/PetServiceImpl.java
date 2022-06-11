@@ -4,7 +4,7 @@ import com.df.dto.PetDto;
 import com.df.entity.Pet;
 import com.df.repository.PetRepository;
 import com.df.util.PetUtility;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Log4j2
 public class PetServiceImpl implements PetService {
 

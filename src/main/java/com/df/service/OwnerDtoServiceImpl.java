@@ -4,6 +4,7 @@ import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
 import com.df.repository.OwnerDtoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class OwnerDtoServiceImpl implements OwnerDtoService {
 
     private final OwnerDtoRepository ownerDtoRepository;
