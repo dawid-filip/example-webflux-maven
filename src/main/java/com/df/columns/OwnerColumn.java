@@ -1,12 +1,12 @@
 package com.df.columns;
 
-public enum PetColumns {
+public enum OwnerColumn {
 
     ID("id"),
-    NAME("name"),
+    FIRST_NAME("first_name"),
+    LAST_NAME("last_name"),
     AGE("age"),
-    WEIGHT("weight"),
-    LENGTH("length"),
+    ID_PET("id_pet"),
     CREATED_AT(BasicAuditColumn.CREATED_AT.toString()),
     CREATED_BY(BasicAuditColumn.CREATED_BY.toString()),
     UPDATED_AT(BasicAuditColumn.UPDATED_AT.toString()),
@@ -15,8 +15,8 @@ public enum PetColumns {
 
     private final String value;
 
-    PetColumns(String value) {
-        this.value = ClassEntity.PET.toString() + value;
+    OwnerColumn(String value) {
+        this.value = ClassEntity.OWNER.toString() + value;
     }
 
     @Override

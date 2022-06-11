@@ -1,12 +1,17 @@
 package com.df.util;
 
+import com.df.columns.OwnerColumn;
 import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
 import com.df.entity.Owner;
 import com.df.request.OwnerRequest;
+import io.r2dbc.spi.Row;
 import org.springframework.beans.BeanUtils;
+import reactor.util.annotation.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OwnerUtility {
@@ -92,4 +97,18 @@ public class OwnerUtility {
                 .collect(Collectors.toList());
     }
 
+    public static OwnerDto rowToOwnerDto(Row source, @Nullable List<PetDto> petDtos) {
+        return OwnerDto.builder()
+                .id(source.get(OwnerColumn.ID.toString(), Long.class))
+                .firstName(source.get(OwnerColumn.FIRST_NAME.toString(), String.class))
+                .lastName(source.get(OwnerColumn.LAST_NAME.toString(), String.class))
+                .age(source.get(OwnerColumn.AGE.toString(), Short.class))
+                .pets(Optional.of(petDtos).orElse(List.of()))
+                .createdAt(source.get(OwnerColumn.CREATED_AT.toString(), LocalDateTime.class))
+                .createdBy(source.get(OwnerColumn.CREATED_BY.toString(), String.class))
+                .updatedAt(source.get(OwnerColumn.UPDATED_AT.toString(), LocalDateTime.class))
+                .updatedBy(source.get(OwnerColumn.UPDATED_BY.toString(), String.class))
+                .version(source.get(OwnerColumn.VERSION.toString(), Long.class))
+                .build();
+    }
 }

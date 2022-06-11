@@ -2,12 +2,12 @@ package com.df.converter;
 
 import com.df.dto.OwnerDto;
 import com.df.dto.PetDto;
+import com.df.util.OwnerUtility;
 import com.df.util.PetUtility;
 import io.r2dbc.spi.Row;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @ReadingConverter
@@ -17,21 +17,11 @@ public class OwnerDtoReadConverter implements Converter<Row, OwnerDto> {
     public OwnerDto convert(Row source) {
 
         PetDto petDto = PetUtility.rowToPetDto(source);
+
         petDto = PetUtility.getNullWhenAllPetDtoFieldsNull(petDto);
         List<PetDto> petDtos = petDto!=null ? List.of(petDto) : List.of();
 
-        return OwnerDto.builder()
-                .id(source.get("owner_id", Long.class))
-                .firstName(source.get("owner_first_name", String.class))
-                .lastName(source.get("owner_last_name", String.class))
-                .age(source.get("owner_age", Short.class))
-                .pets(petDtos)
-                .createdAt(source.get("owner_created_at", LocalDateTime.class))
-                .createdBy(source.get("owner_created_by", String.class))
-                .updatedAt(source.get("owner_updated_at", LocalDateTime.class))
-                .updatedBy(source.get("owner_updated_by", String.class))
-                .version(source.get("owner_version", Long.class))
-                .build();
+        return OwnerUtility.rowToOwnerDto(source, petDtos);
     }
 
 }
