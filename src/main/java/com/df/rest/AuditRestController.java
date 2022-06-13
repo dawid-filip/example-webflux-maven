@@ -44,4 +44,13 @@ public class AuditRestController {
                 .body(auditService.getBetweenIds(startId, endId));
     }
 
+    @GetMapping("/like")
+    public ResponseEntity<Flux<Audit>> getLikeEntityClass(@RequestParam("entityClass") String entityClass) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
+                .body(auditService.findLikeEntityClass(entityClass));
+    }
+
+
 }

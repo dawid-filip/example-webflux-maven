@@ -12,4 +12,5 @@ public interface AuditService {
     Flux<Audit> getAll();
     Mono<Audit> getById(Long id);
     Flux<Audit> getBetweenIds(Long startId, Long endId);
+    Flux<Audit> findLikeEntityClass(String entityClass);
 }

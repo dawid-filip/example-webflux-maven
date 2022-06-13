@@ -16,6 +16,10 @@ public class SqlQuery {
 
     public static final String SELECT_AUDIT_BETWEEN =
             "SELECT * FROM audit_entity audit " +
-            "WHERE audit.id BETWEEN :startId AND :endId";
+            "WHERE audit.id BETWEEN :startId AND :endId ;";
+
+    public static final String SELECT_AUDIT_LIKE_ENTITY_CLASS =
+            "SELECT * FROM audit_entity audit " +
+                    "WHERE audit.entity_class LIKE :entityClass ;";
 
 }

@@ -75,4 +75,16 @@ public class AuditServiceImpl implements AuditService {
         return auditRepository.findBetweenIds(startId, endId);
     }
 
+    @Override
+    public Flux<Audit> findLikeEntityClass(String entityClass) {
+        return Mono.justOrEmpty(entityClass)
+                .map(textEntityClass -> new StringBuilder("%")
+                        .append(textEntityClass)
+                        .append("%")
+                        .toString())
+                .flatMapMany(entityClassLike ->
+                        auditRepository.findLikeEntityClass(entityClassLike))
+                .map(a -> a);
+    }
+
 }

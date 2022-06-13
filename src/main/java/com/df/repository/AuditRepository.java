@@ -12,4 +12,7 @@ public interface AuditRepository extends ReactiveCrudRepository<Audit, Long> {
     @Query(SqlQuery.SELECT_AUDIT_BETWEEN)
     Flux<Audit> findBetweenIds(Long startId, Long endId);
 
+    @Query(SqlQuery.SELECT_AUDIT_LIKE_ENTITY_CLASS)
+    Flux<Audit> findLikeEntityClass(String entityClass);
+
 }
