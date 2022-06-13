@@ -31,6 +31,14 @@ public class PetUtility {
                 : Collections.emptyList();
     }
 
+    public static List<Long> petsToPetIds(List<Pet> pets) {
+        return pets != null && !pets.isEmpty()
+                ? pets.stream()
+                .map(Pet::getId)
+                .collect(Collectors.toList())
+                : Collections.emptyList();
+    }
+
     public static Pet petDtoToPet(PetDto petDto) {
         Pet pet = new Pet();
         BeanUtils.copyProperties(petDto, pet);
@@ -63,6 +71,23 @@ public class PetUtility {
         petdb.setLength(petDto.getLength());
         petdb.setWeight(petDto.getWeight());
         return petdb;
+    }
+
+    public static List<Pet> preparePetsFromPetsAndPetDtos(List<Pet> petdbs, List<PetDto> petDtos) {
+        return petDtos.stream()
+                .map(petDto -> {
+
+                    List<Pet> petdbById = petdbs.stream()
+                            .filter(petdb -> petDto.getId() == petdb.getId())
+                            .collect(Collectors.toList());
+
+                    if (petdbById!=null && !petdbById.isEmpty() && petdbById.get(0)!=null) {
+                        return preparePetFromPetAndPetDto(petdbById.get(0), petDto);
+                    }
+
+                    return petDtoToPet(petDto);
+                })
+                .collect(Collectors.toList());
     }
 
     public static PetDto getNullWhenAllPetDtoFieldsNull(PetDto petDto) {

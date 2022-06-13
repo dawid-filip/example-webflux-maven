@@ -111,7 +111,7 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> alter(PetDto petDto) {
         return Mono.justOrEmpty(petDto)
                 .flatMap(validPetDto ->
-                        getRowPetById(validPetDto.getId()))
+                        getById(validPetDto.getId()).map(PetUtility::petDtoToPet))
                 .flatMap(petdb ->
                     petRepository.save(PetUtility.preparePetFromPetAndPetDto(petdb, petDto))
                             .flatMap(pet -> Mono.just(PetUtility.petToPetDto(petdb)))
@@ -126,11 +126,11 @@ public class PetServiceImpl implements PetService {
     public Flux<PetDto> alterAll(List<PetDto> petDtos) {
         return validatePetDtos(petDtos, true)
                 .flatMap(availablePetDtos ->
-                        getByIds(PetUtility.petDtosToPetIds(availablePetDtos))
+                          getByIds(PetUtility.petDtosToPetIds(availablePetDtos))
                                 .map(PetUtility::petDtoToPet)
                                 .collectList()
-                                .flatMap(currentPetDtos ->
-                                        petRepository.saveAll(PetUtility.petDtosToPets(availablePetDtos))
+                                .flatMap(currentPets ->
+                                        petRepository.saveAll(PetUtility.preparePetsFromPetsAndPetDtos(currentPets, petDtos))
                                                 .map(PetUtility::petToPetDto)
                                                 .collectList()
                                                 .doOnSuccess(pets -> pets.forEach(pet -> log.info("Altered " + pet + ".")))
