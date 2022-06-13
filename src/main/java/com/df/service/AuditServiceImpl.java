@@ -56,4 +56,23 @@ public class AuditServiceImpl implements AuditService {
                 .build();
     }
 
+    @Override
+    public Flux<Audit> getAll() {
+        return auditRepository.findAll()
+                .switchIfEmpty(Flux.empty());
+    }
+
+    @Override
+    public Mono<Audit> getById(Long id) {
+        return Mono.justOrEmpty(id)
+                .switchIfEmpty(Mono.empty())
+                .flatMap(checkedId ->
+                        auditRepository.findById(id));
+    }
+
+    @Override
+    public Flux<Audit> getBetweenIds(Long startId, Long endId) {
+        return auditRepository.findBetweenIds(startId, endId);
+    }
+
 }

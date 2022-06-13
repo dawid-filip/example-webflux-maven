@@ -14,4 +14,8 @@ public class SqlQuery {
             "pet.created_at as pet_created_at, pet.created_by as pet_created_by, pet.updated_at as pet_updated_at, pet.updated_by as pet_updated_by, pet.version as pet_version " +
             "FROM pet; ";
 
+    public static final String SELECT_AUDIT_BETWEEN =
+            "SELECT * FROM audit_entity audit " +
+            "WHERE audit.id BETWEEN :startId AND :endId";
+
 }
