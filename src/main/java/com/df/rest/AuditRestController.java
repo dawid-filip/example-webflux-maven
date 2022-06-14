@@ -55,16 +55,14 @@ public class AuditRestController {
                 .body(auditService.getLikeEntityClass(entityClass));
     }
 
+    // example: http://localhost:8080/api/v1/audit/between-audited-ons?startAuditedOn=2022-01-01T00:00:01.1&endAuditedOn=2022-01-01T00:00:02.1
     @GetMapping("/between-audited-ons")
-    public ResponseEntity<Flux<Audit>> getBetweenAuditedOns(@RequestParam("startAuditedOn") String startAuditedOn,
-                                                  @RequestParam("endAuditedOn") String endAuditedOn) {
-        LocalDateTime ldtStartAuditedOn = LocalDateTime.parse(startAuditedOn);
-        LocalDateTime ldtEndAuditedOn = LocalDateTime.parse(endAuditedOn);
-
+    public ResponseEntity<Flux<Audit>> getBetweenAuditedOns(@RequestParam("startAuditedOn") LocalDateTime startAuditedOn,
+                                                            @RequestParam("endAuditedOn") LocalDateTime endAuditedOn) {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .allow(HttpMethod.GET)
-                .body(auditService.getBetweenAuditedOns(ldtStartAuditedOn, ldtEndAuditedOn));
+                .body(auditService.getBetweenAuditedOns(startAuditedOn, endAuditedOn));
     }
 
 }
