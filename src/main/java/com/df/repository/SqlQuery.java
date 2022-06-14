@@ -14,12 +14,16 @@ public class SqlQuery {
             "pet.created_at as pet_created_at, pet.created_by as pet_created_by, pet.updated_at as pet_updated_at, pet.updated_by as pet_updated_by, pet.version as pet_version " +
             "FROM pet; ";
 
-    public static final String SELECT_AUDIT_BETWEEN =
+    public static final String SELECT_AUDIT_BETWEEN_IDS =
             "SELECT * FROM audit_entity audit " +
             "WHERE audit.id BETWEEN :startId AND :endId ;";
 
     public static final String SELECT_AUDIT_LIKE_ENTITY_CLASS =
             "SELECT * FROM audit_entity audit " +
                     "WHERE audit.entity_class LIKE :entityClass ;";
+
+    public static final String SELECT_AUDIT_BETWEEN_AUDITED_ONS =
+            "SELECT * FROM audit_entity audit " +
+                    "WHERE audit.audited_on BETWEEN :startAuditedOn AND :endAuditedOn ;";
 
 }

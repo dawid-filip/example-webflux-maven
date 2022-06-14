@@ -76,7 +76,12 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public Flux<Audit> findLikeEntityClass(String entityClass) {
+    public Flux<Audit> getBetweenAuditedOns(LocalDateTime startAuditedOn, LocalDateTime endAuditedOn) {
+        return auditRepository.findBetweenAuditedOns(startAuditedOn, endAuditedOn);
+    }
+
+    @Override
+    public Flux<Audit> getLikeEntityClass(String entityClass) {
         return Mono.justOrEmpty(entityClass)
                 .map(textEntityClass -> new StringBuilder("%")
                         .append(textEntityClass)

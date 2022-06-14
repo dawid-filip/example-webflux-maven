@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/v1/audit")
 @AllArgsConstructor
@@ -36,8 +38,9 @@ public class AuditRestController {
                 .body(auditService.getById(id));
     }
 
-    @GetMapping("/between")
-    public ResponseEntity<Flux<Audit>> getBetween(@RequestParam("startId") Long startId, @RequestParam("endId") Long endId) {
+    @GetMapping("/between-ids")
+    public ResponseEntity<Flux<Audit>> getBetweenIds(@RequestParam("startId") Long startId,
+                                                     @RequestParam("endId") Long endId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .allow(HttpMethod.GET)
@@ -49,8 +52,19 @@ public class AuditRestController {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .allow(HttpMethod.GET)
-                .body(auditService.findLikeEntityClass(entityClass));
+                .body(auditService.getLikeEntityClass(entityClass));
     }
 
+    @GetMapping("/between-audited-ons")
+    public ResponseEntity<Flux<Audit>> getBetweenAuditedOns(@RequestParam("startAuditedOn") String startAuditedOn,
+                                                  @RequestParam("endAuditedOn") String endAuditedOn) {
+        LocalDateTime ldtStartAuditedOn = LocalDateTime.parse(startAuditedOn);
+        LocalDateTime ldtEndAuditedOn = LocalDateTime.parse(endAuditedOn);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
+                .body(auditService.getBetweenAuditedOns(ldtStartAuditedOn, ldtEndAuditedOn));
+    }
 
 }

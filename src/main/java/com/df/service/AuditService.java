@@ -4,6 +4,7 @@ import com.df.entity.Audit;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AuditService {
@@ -12,5 +13,6 @@ public interface AuditService {
     Flux<Audit> getAll();
     Mono<Audit> getById(Long id);
     Flux<Audit> getBetweenIds(Long startId, Long endId);
-    Flux<Audit> findLikeEntityClass(String entityClass);
+    Flux<Audit> getBetweenAuditedOns(LocalDateTime startAuditedOn, LocalDateTime endAuditedOn);
+    Flux<Audit> getLikeEntityClass(String entityClass);
 }
