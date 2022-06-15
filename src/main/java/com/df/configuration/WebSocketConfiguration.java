@@ -1,6 +1,7 @@
 package com.df.configuration;
 
 import com.df.websocket.WebSocketAuditHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,15 +15,15 @@ import org.springframework.web.reactive.socket.server.upgrade.ReactorNettyReques
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebSocketConfiguration {
 
-    @Autowired
-    private WebSocketAuditHandler handleAudit;
+    private final WebSocketAuditHandler webSocketAuditHandler;
 
     @Bean
     public HandlerMapping handlerMapping() {
-        Map<String, WebSocketHandler> handlerMap = Map.ofEntries(
-                Map.entry("/ws/audit", handleAudit)
+        Map<String, WebSocketHandler> handlerMap = Map.ofEntries(   // Map<String, WebSocketAuditHandler> ...
+                Map.entry("/ws/audit", webSocketAuditHandler)
         );
         return new SimpleUrlHandlerMapping(handlerMap, 1);
     }
