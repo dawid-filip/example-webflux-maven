@@ -28,20 +28,20 @@ INSERT INTO audit_entity (entity_value, entity_class, audited_on)
 VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:03, updatedAt=2022-01-02T00:00:03, createdBy=USER 3, updatedBy=USER 3, version=0),
 id=3, firstName=firstName 3, lastName=lastName 3, age=23, petIds=[4, 5, 6]', 'com.df.entity.Owner', '2022-01-01T00:00:03.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:01, updatedAt=2022-01-01T00:00:01, createdBy=USER 1, updatedBy=USER 1, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:01, updatedAt=2022-01-01T00:00:01, createdBy=USER 1, updatedBy=USER 1, version=0),
 id=1, name=petName 1, age=1, weight=3, length=4', 'com.df.entity.Pet', '2022-01-01T00:00:01.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:02, updatedAt=2022-01-01T00:00:02, createdBy=USER 2, updatedBy=USER 2, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:02, updatedAt=2022-01-01T00:00:02, createdBy=USER 2, updatedBy=USER 2, version=0),
 id=2, name=petName 2, age=2, weight=4, length=5', 'com.df.entity.Pet', '2022-01-01T00:00:02.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:03, updatedAt=2022-01-01T00:00:03, createdBy=USER 2, updatedBy=USER 2, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:03, updatedAt=2022-01-01T00:00:03, createdBy=USER 2, updatedBy=USER 2, version=0),
 id=3, name=petName 3, age=3, weight=5, length=6', 'com.df.entity.Pet', '2022-01-01T00:00:03.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:04, updatedAt=2022-01-01T00:00:04, createdBy=USER 3, updatedBy=USER 3, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:04, updatedAt=2022-01-01T00:00:04, createdBy=USER 3, updatedBy=USER 3, version=0),
 id=4, name=petName 4, age=4, weight=6, length=7', 'com.df.entity.Pet', '2022-01-01T00:00:04.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:05, updatedAt=2022-01-01T00:00:05, createdBy=USER 3, updatedBy=USER 3, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:05, updatedAt=2022-01-01T00:00:05, createdBy=USER 3, updatedBy=USER 3, version=0),
 id=5, name=petName 5, age=5, weight=7, length=8', 'com.df.entity.Pet', '2022-01-01T00:00:05.1');
 INSERT INTO audit_entity (entity_value, entity_class, audited_on)
-VALUES ('Owner(super=BasicAudit(createdAt=2022-01-01T00:00:06, updatedAt=2022-01-01T00:00:06, createdBy=USER 3, updatedBy=USER 3, version=0),
+VALUES ('Pet(super=BasicAudit(createdAt=2022-01-01T00:00:06, updatedAt=2022-01-01T00:00:06, createdBy=USER 3, updatedBy=USER 3, version=0),
 id=6, name=petName 6, age=6, weight=8, length=9', 'com.df.entity.Pet', '2022-01-01T00:00:06.1');

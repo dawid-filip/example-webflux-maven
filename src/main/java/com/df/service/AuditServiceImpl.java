@@ -38,7 +38,7 @@ public class AuditServiceImpl implements AuditService {
                 .collectList()
                 .flatMap(audits -> auditRepository.saveAll(audits)
                                 .collectList()
-                                .doOnSuccess(createdAuditEntity -> log.info("Created " + createdAuditEntity + " audits."))
+                                .doOnSuccess(createdAuditEntities -> log.info("Created " + createdAuditEntities + " audits."))
                                 .doOnError(e -> log.info("Failed to create audits " + entitiesValue + ".", e))
                                 .then(Mono.just(audits)))
                                 .subscribeOn(Schedulers.boundedElastic()

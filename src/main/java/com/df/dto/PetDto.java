@@ -1,5 +1,6 @@
 package com.df.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -9,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @EqualsAndHashCode
 @ToString//(callSuper = true)
+@JsonPropertyOrder({"id", "name", "age", "weight", "length"})
 public class PetDto extends BasicAuditDto {
 
     private Long id;
