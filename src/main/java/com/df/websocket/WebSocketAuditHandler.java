@@ -3,6 +3,7 @@ package com.df.websocket;
 import com.df.configuration.WebSocketObjectMapper;
 import com.df.service.AuditService;
 import com.df.util.RequestUtility;
+import io.netty.handler.codec.http.websocketx.extensions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -29,12 +30,15 @@ public class WebSocketAuditHandler implements WebSocketHandler {
                     Long parsedId = RequestUtility.convertTextToNumber(id);
                     return parsedId != null ? parsedId : 0L;
                 })
-                .flatMap(theId ->
-                        auditService.getById(theId)
+                .flatMap(checkedId ->
+                        auditService.getById(checkedId)
                                 .map(audit -> webSocketObjectMapper.convertEntityToJsonString(audit))
                                 .map(webSocketSession::textMessage)
-                                .switchIfEmpty(Mono.just("No data found for " + theId + " [Audit] id.").map(webSocketSession::textMessage))
-                );
+                                .switchIfEmpty(
+                                        Mono.just("No data found for " + checkedId + " [Audit] id.")
+                                                .map(webSocketSession::textMessage))
+                )
+                .map(m -> m);
 
         return webSocketSession.send(webSocketMessage)
                 .doOnTerminate(() -> log.warn("Terminated [Audit] WebSocket with sessionId = " + webSocketSession.getId()))
