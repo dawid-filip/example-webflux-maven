@@ -1,5 +1,6 @@
 package com.df.configuration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -21,7 +22,7 @@ public class MapperComponent extends ObjectMapper {
     public String writeValueAsString(Object object) {
         try {
             return super.writeValueAsString(object);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("Could not convert " + object + " to text JSON string.", e);
             return Strings.EMPTY;
         }

@@ -1,9 +1,11 @@
 package com.df.service;
 
+import com.df.configuration.MapperComponent;
 import com.df.entity.Audit;
 import com.df.entity.BasicAudit;
 import com.df.entity.Pet;
 import com.df.repository.AuditRepository;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
+@Log4j2
 public class AuditServiceTest {
 
     @InjectMocks
@@ -32,6 +35,9 @@ public class AuditServiceTest {
     @Mock
     public AuditRepository auditRepository;
 
+    @Mock
+    public MapperComponent mapperComponent;
+
     @Test
     public void testCreate() {
         BasicAudit entity = Pet.builder().id(1L).name("petNam1").age((short) 1).weight((short) 2).length((short) 11).build();
@@ -39,6 +45,7 @@ public class AuditServiceTest {
                 .auditedOn(LocalDateTime.now(ZoneOffset.UTC)).build();
 
         Mockito.when(auditRepository.save(any())).thenReturn(Mono.just(audit)); // any() because of 'random' auditedOn timestamp
+        Mockito.when(mapperComponent.writeValueAsString(entity)).thenReturn(entity.toString());
 
         StepVerifier.create(auditServiceImpl.create(entity))
                 .expectNextMatches(auditResult ->
@@ -49,6 +56,7 @@ public class AuditServiceTest {
                 .verifyComplete();
 
         Mockito.verify(auditRepository, times(1)).save(any());
+        Mockito.verify(mapperComponent, times(1)).writeValueAsString(any());
     }
 
     @Test
@@ -58,16 +66,18 @@ public class AuditServiceTest {
                 .auditedOn(LocalDateTime.now(ZoneOffset.UTC)).build();
 
         Mockito.when(auditRepository.saveAll(anyList())).thenReturn(Flux.fromIterable(List.of(audit)));
+        Mockito.when(mapperComponent.writeValueAsString(entity)).thenReturn(entity.toString());
 
         StepVerifier.create(auditServiceImpl.createAll(List.of(entity)))
                 .expectNextMatches(auditResult ->
-                        auditResult.getEntityValue().equalsIgnoreCase(entity.toString()) &&
-                                auditResult.getEntityClass().equalsIgnoreCase(entity.getClass().getName()) &&
-                                Objects.nonNull(auditResult.getAuditedOn())
+                    auditResult.getEntityValue().equalsIgnoreCase(entity.toString()) &&
+                            auditResult.getEntityClass().equalsIgnoreCase(entity.getClass().getName()) &&
+                            Objects.nonNull(auditResult.getAuditedOn())
                 )
                 .verifyComplete();
 
         Mockito.verify(auditRepository, times(1)).saveAll(anyList());
+        Mockito.verify(mapperComponent, times(1)).writeValueAsString(any());
     }
 
     @Test
@@ -81,6 +91,8 @@ public class AuditServiceTest {
                 .auditedOn(LocalDateTime.now(ZoneOffset.UTC)).build();
 
         Mockito.when(auditRepository.saveAll(anyList())).thenReturn(Flux.fromIterable(List.of(audit1, audit2)));
+        Mockito.when(mapperComponent.writeValueAsString(entity1)).thenReturn(entity1.toString());
+        Mockito.when(mapperComponent.writeValueAsString(entity2)).thenReturn(entity2.toString());
 
         StepVerifier.create(auditServiceImpl.createAll(List.of(entity1, entity2)))
                 .expectNextMatches(auditResult ->
@@ -96,6 +108,7 @@ public class AuditServiceTest {
                 .verifyComplete();
 
         Mockito.verify(auditRepository, times(1)).saveAll(anyList());
+        Mockito.verify(mapperComponent, times(2)).writeValueAsString(any());
     }
 
 }
