@@ -1,5 +1,6 @@
 package com.df.service;
 
+import com.df.configuration.MapperComponent;
 import com.df.entity.Audit;
 import com.df.repository.AuditRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.*;
 public class AuditServiceImpl implements AuditService {
 
     private final AuditRepository auditRepository;
+    private final MapperComponent mapperComponent;
 
     @Override
     @Transactional
@@ -51,7 +53,7 @@ public class AuditServiceImpl implements AuditService {
         return Audit.builder()
                 .id(null)
                 .entityClass(entityObject.getClass().getName())
-                .entityValue(entityObject.toString())
+                .entityValue(mapperComponent.writeValueAsString(entityObject))
                 .auditedOn(LocalDateTime.now(ZoneOffset.UTC))
                 .build();
     }

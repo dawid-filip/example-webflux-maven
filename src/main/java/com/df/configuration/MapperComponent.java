@@ -1,6 +1,5 @@
 package com.df.configuration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -10,18 +9,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Log4j2
-public class WebSocketObjectMapper extends ObjectMapper {
+public class MapperComponent extends ObjectMapper {
 
-    public WebSocketObjectMapper() {
+    public MapperComponent() {
         super.findAndRegisterModules();
         super.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         super.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
     }
 
-    public <T> String convertEntityToJsonString(T object) {
+    @Override
+    public String writeValueAsString(Object object) {
         try {
-            return this.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+            return super.writeValueAsString(object);
+        } catch (Exception e) {
             log.error("Could not convert " + object + " to text JSON string.", e);
             return Strings.EMPTY;
         }

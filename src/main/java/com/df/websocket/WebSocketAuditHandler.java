@@ -1,9 +1,8 @@
 package com.df.websocket;
 
-import com.df.configuration.WebSocketObjectMapper;
+import com.df.configuration.MapperComponent;
 import com.df.service.AuditService;
 import com.df.util.RequestUtility;
-import io.netty.handler.codec.http.websocketx.extensions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class WebSocketAuditHandler implements WebSocketHandler {
 
     private final AuditService auditService;
-    private final WebSocketObjectMapper webSocketObjectMapper;
+    private final MapperComponent mapperComponent;
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
@@ -32,7 +31,7 @@ public class WebSocketAuditHandler implements WebSocketHandler {
                 })
                 .flatMap(checkedId ->
                         auditService.getById(checkedId)
-                                .map(audit -> webSocketObjectMapper.convertEntityToJsonString(audit))
+                                .map(audit -> mapperComponent.writeValueAsString(audit))
                                 .map(webSocketSession::textMessage)
                                 .switchIfEmpty(
                                         Mono.just("No data found for " + checkedId + " [Audit] id.")
