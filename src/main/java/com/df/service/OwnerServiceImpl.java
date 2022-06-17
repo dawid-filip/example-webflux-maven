@@ -68,10 +68,10 @@ public class OwnerServiceImpl implements OwnerService {
                 .flatMap(validatedOwnerRequest ->
                         getById(ownerRequest.getId())
                                 .flatMap(currentOwner ->
-                                        ownerRepository.save(OwnerUtility.ownerRequestToOwner(validatedOwnerRequest))
+                                        ownerRepository.save(OwnerUtility.ownerRequestToOwner(currentOwner, validatedOwnerRequest))
                                                 .flatMap(owner -> Mono.just(owner))
-                                                .doOnSuccess(o -> log.info("Altered " + ownerRequest + "."))
-                                                .doOnError(e -> log.info("Failed to alter " + ownerRequest + ".", e))
+                                                .doOnSuccess(o -> log.info("Altered " + validatedOwnerRequest + "."))
+                                                .doOnError(e -> log.info("Failed to alter " + validatedOwnerRequest + ".", e))
                                 )
                 );
     }

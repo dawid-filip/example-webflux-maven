@@ -25,7 +25,7 @@ public class OwnerServiceOnStartup {
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
         startCreate();
-//        startAlter();
+        startAlter();
         startGetAll();
         startGetById(1L);
         startDeleteById(4L);

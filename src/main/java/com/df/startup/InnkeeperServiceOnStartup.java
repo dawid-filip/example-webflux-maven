@@ -25,7 +25,7 @@ public class InnkeeperServiceOnStartup {
     @EventListener(ContextRefreshedEvent.class)
     public void doOnContextRefreshedEvent() {
         startCreate();
-//        startAlter();
+        startAlter();
         startGetAll();
         startGetById(1L);
         startDeleteById(4L);
@@ -43,12 +43,12 @@ public class InnkeeperServiceOnStartup {
     }
 
     private void startAlter() {
-        PetDto petDto = PetDto.builder().id(7L).name("petNameAlter14")
+        PetDto petDto = PetDto.builder().id(4L).name("petNameAlter14")
                 .age((short)8).weight((short)8).length((short)28).build();
-        OwnerDto ownerDto = OwnerDto.builder().id(4L)
+        OwnerDto ownerDto = OwnerDto.builder().id(2L)
                 .firstName("firstNameCreate14").lastName("lastNameAlter14").age((short)24).pets(List.of(petDto)).build();
 
-        innkeeperService.create(ownerDto)
+        innkeeperService.alter(ownerDto)
                 .map(resultOwnerRequest -> printOwnerMapper.apply("\nInnkeeperServiceOnStartup::startAlter()=" + resultOwnerRequest))
                 .subscribe();
     }

@@ -25,10 +25,14 @@ public class OwnerUtility {
     public static Owner ownerRequestToOwner(OwnerRequest ownerRequest) {
         Owner owner = new Owner();
         BeanUtils.copyProperties(ownerRequest, owner);
-        owner.setPetIds(ownerRequest.getPetIds()!=null ? ownerRequest.getPetIds() : List.of());
+        owner.setPetIds(Optional.ofNullable(ownerRequest.getPetIds()).orElse(List.of()));
         return owner;
     }
 
+    public static Owner ownerRequestToOwner(Owner ownerdb, OwnerRequest ownerRequest) {
+        BeanUtils.copyProperties(ownerRequest, ownerdb);
+        return ownerdb;
+    }
 
     public static Owner ownerDtoToOwner(OwnerDto ownerDto) {
         Owner owner = new Owner();
