@@ -116,6 +116,11 @@ public class PetHandler {
                 .body(petService.getById(id), PetDto.class);
     }
 
+    public Mono<ServerResponse> getRandom(ServerRequest serverRequest) {
+        return ServerResponse.ok()
+                .body(petService.getRandom(), PetDto.class);
+    }
+
     public Mono<ServerResponse> getByIds(ServerRequest serverRequest) {
         List<String> textIds = serverRequest.queryParams().get("id");
         List<Long> ids = RequestUtility.covertTextsToNumbers(textIds);

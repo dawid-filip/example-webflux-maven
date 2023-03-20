@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface PetService {
+    Mono<PetDto> getRandom();
     Flux<PetDto> getAll();
     Mono<PetDto> getById(Long id);
     Flux<PetDto> getByIds(List<Long> ids);

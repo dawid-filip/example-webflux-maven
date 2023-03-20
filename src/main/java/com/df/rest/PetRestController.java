@@ -36,6 +36,14 @@ public class PetRestController {
                 .body(petService.getById(id));
     }
 
+    @GetMapping("/random")
+    public ResponseEntity<Mono<PetDto>> getRandom() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
+                .body(petService.getRandom());
+    }
+
     @GetMapping("/ids")
     public ResponseEntity<Flux<PetDto>> getByIds(@RequestParam("id") List<Long> id) {
         return ResponseEntity.status(HttpStatus.OK)

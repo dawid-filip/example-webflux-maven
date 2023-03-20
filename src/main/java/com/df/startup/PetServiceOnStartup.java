@@ -29,6 +29,7 @@ public class PetServiceOnStartup {
         startAlterAll();
         startGetAll();
         startGetById(1L);
+        startGetRandom();
         startDeleteById(7L);
         startDeleteByIds(List.of(8L, 9L));
         startGetByIds(List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L));
@@ -95,6 +96,12 @@ public class PetServiceOnStartup {
     public void startGetById(Long id) {
         petService.getById(id)
                 .map(petDto -> printPetMapper.apply("\nPetServiceOnStartup::startGetAll(" + id + ")=" + petDto))
+                .subscribe();
+    }
+
+    public void startGetRandom() {
+        petService.getRandom()
+                .map(petDto -> printPetMapper.apply("\nPetServiceOnStartup::startGetRandom(" + petDto.getId() + ")=" + petDto))
                 .subscribe();
     }
 

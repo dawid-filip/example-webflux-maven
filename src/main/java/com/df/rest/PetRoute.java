@@ -37,6 +37,8 @@ public class PetRoute {
                                         .and(method(GET)), petHandler::getAll)
                                 .andRoute(GET("/{id}")
                                         .and(method(GET)), petHandler::getById)
+                                .andRoute(GET("/id/random")
+                                        .and(method(GET)), petHandler::getRandom)
                                 .andRoute(GET("/many/ids")
                                         .and(queryParam("id", id -> true))
                                         .and(method(GET)), petHandler::getByIds)
