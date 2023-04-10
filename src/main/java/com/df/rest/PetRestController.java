@@ -36,7 +36,7 @@ public class PetRestController {
                 .body(petService.getById(id));
     }
 
-    @GetMapping("/random")
+    @GetMapping("/id/random")
     public ResponseEntity<Mono<PetDto>> getRandom() {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)

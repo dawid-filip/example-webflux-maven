@@ -5,6 +5,7 @@ import com.df.entity.Pet;
 import com.df.repository.PetRepository;
 import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.PetServiceImpl;
+import com.df.util.GeneralUtility;
 import com.df.util.PetUtility;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,12 +20,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static com.df.util.GeneralUtility.getRandomValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = PetRestController.class)
-@Import({PetServiceImpl.class})
+@Import({PetServiceImpl.class, GeneralUtility.class})
 public class PetRestControllerTest extends BasicControllerTestConfig {
 
     private static final String BASE_URL = "/api/v1/pet";
@@ -48,7 +50,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
                 .expectStatus().isCreated()
                 .expectBody(PetDto.class)
                 .consumeWith(entityExchangeResult -> {
-                    assertTrue(entityExchangeResult.getResponseBody().getId()==petAfter.getId());
+                    assertTrue(entityExchangeResult.getResponseBody().getId() == petAfter.getId());
                 });
 
         verify(petRepository, times(1)).save(petBefore);
@@ -112,12 +114,34 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
 
     @Test
     void testGetById() {
-        Pet pet = new Pet(1L, "petName1", (short)3, (short)3, (short)16);
+        Pet pet = new Pet(1L, "petName1", (short) 3, (short) 3, (short) 16);
 
         Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
 
         webClient.get()
                 .uri(BASE_URL + "/{id}", pet.getId())
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PetDto.class)
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(pet.getId(), entityExchangeResult.getResponseBody().getId());
+                    assertEquals(pet.getName(), entityExchangeResult.getResponseBody().getName());
+                });
+
+        verify(petRepository, times(1)).findById(pet.getId());
+    }
+
+    @Test
+    void testGetRandom() {
+        long randomId = getRandomValue(3);
+        Pet pet = new Pet(randomId, "petName" + randomId, (short) randomId, (short) randomId, (short) (randomId * 2));
+
+        Mockito.when(petRepository.count()).thenReturn(Mono.just(randomId + 1));
+        Mockito.when(petRepository.findById(pet.getId())).thenReturn(Mono.just(pet));
+
+        webClient.get()
+                .uri(BASE_URL + "/id/random")
                 .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
                 .exchange()
                 .expectStatus().isOk()
