@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface OwnerService {
     Mono<Owner> getById(Long id);
+    Mono<Owner> getRandom();
     Flux<Owner> getAll();
     Mono<Owner> create(OwnerRequest ownerRequest);
     Mono<Owner> deleteById(Long id);

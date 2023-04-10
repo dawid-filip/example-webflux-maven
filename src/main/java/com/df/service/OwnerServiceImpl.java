@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static com.df.util.GeneralUtility.getRandomValue;
+
 @Service
 @RequiredArgsConstructor
 @Log4j2
@@ -25,6 +27,14 @@ public class OwnerServiceImpl implements OwnerService {
                         ownerRepository.findById(ownerId)
                                 .switchIfEmpty(Mono.empty())
                 );
+    }
+
+    @Override
+    public Mono<Owner> getRandom() {
+        return ownerRepository.count()
+                .filter(count -> count >= 0)
+                .map(countMax -> getRandomValue(countMax.intValue()))
+                .flatMap(this::getById);
     }
 
     private Mono<Long> validateId(Long id) {

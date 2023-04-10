@@ -35,6 +35,14 @@ public class OwnerRestController {
                 .body(ownerService.getById(id));
     }
 
+    @GetMapping("/random")
+    public ResponseEntity<Mono<Owner>> getRandom() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .allow(HttpMethod.GET)
+                .body(ownerService.getRandom());
+    }
+
     @PostMapping
     public ResponseEntity<Mono<Owner>> create(@RequestBody OwnerRequest ownerRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)

@@ -28,6 +28,7 @@ public class OwnerServiceOnStartup {
         startAlter();
         startGetAll();
         startGetById(1L);
+        startGetRandom();
         startDeleteById(4L);
     }
 
@@ -60,6 +61,12 @@ public class OwnerServiceOnStartup {
     private void startGetById(Long id) {
         ownerService.getById(id)
                 .map(resultOwnerRequest -> printOwnerMapper.apply("\nOwnerServiceOnStartup::startGetById(" + id + ")=" + resultOwnerRequest))
+                .subscribe();
+    }
+
+    public void startGetRandom() {
+        ownerService.getRandom()
+                .map(resultOwnerRequest -> printOwnerMapper.apply("\nOwnerServiceOnStartup::startGetRandom(" + resultOwnerRequest.getId() + ")=" + resultOwnerRequest))
                 .subscribe();
     }
 

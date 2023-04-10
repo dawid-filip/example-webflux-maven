@@ -13,9 +13,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.df.util.GeneralUtility.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +29,8 @@ public class PetServiceImpl implements PetService {
     public Mono<PetDto> getRandom() {
         return petRepository.count()
                 .filter(count -> count >= 0)
-                .map(countMax -> getRandom(countMax.intValue()))
+                .map(countMax -> getRandomValue(countMax.intValue()))
                 .flatMap(this::getById);
-    }
-    private Long getRandom(int countMax) {
-        return (long) ThreadLocalRandom.current().nextInt(1, countMax);
     }
 
     @Override
