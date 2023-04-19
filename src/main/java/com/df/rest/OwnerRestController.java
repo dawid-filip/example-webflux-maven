@@ -35,7 +35,7 @@ public class OwnerRestController {
                 .body(ownerService.getById(id));
     }
 
-    @GetMapping("/random")
+    @GetMapping("/id/random")
     public ResponseEntity<Mono<Owner>> getRandom() {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)

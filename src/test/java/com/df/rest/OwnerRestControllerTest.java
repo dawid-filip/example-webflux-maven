@@ -5,6 +5,7 @@ import com.df.repository.OwnerRepository;
 import com.df.request.OwnerRequest;
 import com.df.rest.basic.BasicControllerTestConfig;
 import com.df.service.OwnerServiceImpl;
+import com.df.util.GeneralUtility;
 import com.df.util.OwnerUtility;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,12 +20,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static com.df.util.GeneralUtility.getRandomValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = OwnerRestController.class)
-@Import({OwnerServiceImpl.class})
+@Import({OwnerServiceImpl.class, GeneralUtility.class})
 public class OwnerRestControllerTest extends BasicControllerTestConfig {
 
     private static final String BASE_URL = "/api/v1/owner";
@@ -88,6 +90,30 @@ public class OwnerRestControllerTest extends BasicControllerTestConfig {
                     assertEquals(owner.getLastName(), entityExchangeResult.getResponseBody().getLastName());
                 });
 
+        verify(ownerRepository, times(1)).findById(owner.getId());
+    }
+
+    @Test
+    void testGetRandom() {
+        long randomId = getRandomValue(3);
+        Owner owner = new Owner(randomId, "firstName" + randomId, "lastName" + randomId, (short) (randomId * 3), List.of(1L));
+
+        Mockito.when(ownerRepository.count()).thenReturn(Mono.just(randomId + 1));
+        Mockito.when(ownerRepository.findById(owner.getId())).thenReturn(Mono.just(owner));
+
+        webClient.get()
+                .uri(BASE_URL + "/id/random")
+                .header(HttpHeaders.ALLOW, HttpMethod.GET.toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(OwnerRequest.class)
+                .consumeWith(entityExchangeResult -> {
+                    assertEquals(owner.getId(), entityExchangeResult.getResponseBody().getId());
+                    assertEquals(owner.getFirstName(), entityExchangeResult.getResponseBody().getFirstName());
+                    assertEquals(owner.getLastName(), entityExchangeResult.getResponseBody().getLastName());
+                });
+
+        verify(ownerRepository, times(1)).count();
         verify(ownerRepository, times(1)).findById(owner.getId());
     }
 

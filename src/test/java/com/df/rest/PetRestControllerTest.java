@@ -151,6 +151,7 @@ public class PetRestControllerTest extends BasicControllerTestConfig {
                     assertEquals(pet.getName(), entityExchangeResult.getResponseBody().getName());
                 });
 
+        verify(petRepository, times(1)).count();
         verify(petRepository, times(1)).findById(pet.getId());
     }
 
